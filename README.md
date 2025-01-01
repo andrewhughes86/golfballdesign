@@ -1,4 +1,4 @@
-# Python Workbench Template
+# Golf Ball Design Workbench 
 
 ![WorkbenchIcon](./freecad.svg)  
     
@@ -16,24 +16,24 @@ Once installed all that is needed is to restart FreeCAD and the workbench will b
 
 ```bash
 cd ~/FreeCAD/Mod/ 
-git clone https://github.com/chbergmann/PythonWorkbenchTemplate.git
+git clone https://github.com/chbergmann/GolfBallDesign.git
 ```
 When you restart FreeCAD, "Python Workbench Template" workbench should now show up in the [workbench dropdown list](https://freecadweb.org/wiki/Std_Workbench).
   
 ## Getting started with a new FreeCAD workbench
 - Create a new git repository and copy the contents of this project to your new project
-- Rename PythonWorkbenchTemplate.py to YourWorkbenchsName.py. Search all files for PythonWorkbenchTemplate and replace with the name of your workbench
-- Rename Feature1.py with YourNewFeature.py 
-- Edit InitGui.py. Delete Feature1 and add your new feature instead. Edit the \__title\__, \__author\__, \__url\__ and \__version\__ tags.
+- Rename GolfBallDesign.py to YourWorkbenchsName.py. Search all files for GolfBallDesign and replace with the name of your workbench
+- Rename Dimple.py with YourNewFeature.py 
+- Edit InitGui.py. Delete Dimple and add your new feature instead. Edit the \__title\__, \__author\__, \__url\__ and \__version\__ tags.
 - Write your new feature and test it well.
-- If you need a user interface, create a .ui file with the QT Designer. See Feature1TaskPanel in Feature1.py how to implement it.
+- If you need a user interface, create a .ui file with the QT Designer. See DimpleTaskPanel in Dimple.py how to implement it.
 - Write a documentation in README.md. Explain the purpose of your workbench. Explain your features and its parameters. Screenshots are great.
 - Draw a .svg icon for the workbench and for each feature. You can export FreeCAD designs to .svg.
 - Announce your workbench in the [FreeCAD forum](https://forum.freecadweb.org/index.php). Add the link of your new thread in README.md
 - Add your workbench to the [Addon manager](https://github.com/FreeCAD/FreeCAD-addons)
 
 ## Tools
-### ![Feature1Icon](./Feature1/feature1.svg) Feature1
+### ![DimpleIcon](./Dimple/Dimple.svg) Dimple
 Creates a copy of a selected object and sets it on top of the original and colorizes it red or green. For demonstration how to write a workbench feature.
 
 #### Parameters

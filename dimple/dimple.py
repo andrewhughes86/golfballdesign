@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-__title__ = "Feature1"
-__author__ = "Christian Bergmann"
+__title__ = "Dimple"
+__author__ = "Andy Hughes"
 __license__ = "LGPL 2.1"
 __doc__ = "An example for a workbench feature"
 
@@ -10,32 +10,32 @@ import FreeCADGui
 import FreeCAD
 
 __dir__ = os.path.dirname(__file__)
-__iconpath__ = os.path.join(__dir__, 'feature1.svg')
+__iconpath__ = os.path.join(__dir__, 'Dimple.svg')
     
-class Feature1Worker:
+class DimpleWorker:
     def __init__(self, 
                  fp,    # an instance of Part::FeaturePython
                  base = None,
                  green = False):
-        fp.addProperty("App::PropertyLink", "Base",  "Feature1",  "This object will be modified by this feature").Base = base
-        fp.addProperty("App::PropertyBool", "Green", "Feature1",  "Colorize the feature green").Green = green
+        fp.addProperty("App::PropertyLink", "Base",  "Dimple",  "This object will be modified by this feature").Base = base
+        fp.addProperty("App::PropertyBool", "Green", "Dimple",  "Colorize the feature green").Green = green
         
         fp.Proxy = self
     
     def execute(self, fp):
         '''Do something when doing a recomputation, this method is mandatory'''
-        redrawFeature1(fp)
+        redrawDimple(fp)
         
     def onChanged(self, fp, prop):
         '''Do something when a property has changed'''
         if prop == "Base":
-            redrawFeature1(fp)
+            redrawDimple(fp)
             
         if prop == "Green":
-            changeFeature1Color(fp)
+            changeDimpleColor(fp)
 
 
-class Feature1ViewProvider:
+class DimpleViewProvider:
     def __init__(self, vobj):
         '''Set this object to the proxy object of the actual view provider'''
         vobj.Proxy = self
@@ -69,7 +69,7 @@ class Feature1ViewProvider:
     def setEdit(self, vobj=None, mode=0):
         '''Enter edit mode when double clicking onto the feature. Optional.'''
         # Create a task panel UI
-        self.panel = Feature1TaskPanel(self.Object)
+        self.panel = DimpleTaskPanel(self.Object)
         FreeCADGui.Control.showDialog(self.panel)
         return True
         
@@ -85,11 +85,11 @@ class Feature1ViewProvider:
         return None
     
         
-class Feature1TaskPanel:
+class DimpleTaskPanel:
     def __init__(self, fp):
         self.fp = fp
         # this will create a Qt widget from our ui file
-        self.form = FreeCADGui.PySideUic.loadUi(os.path.join(__dir__, 'feature1.ui'))
+        self.form = FreeCADGui.PySideUic.loadUi(os.path.join(__dir__, 'Dimple.ui'))
         # connect controls from the .ui file to class methods
         self.form.pushButtonSelect.pressed.connect(self._selectPart)
         self.form.radioButtonRed.released.connect(self._changeColor)
@@ -102,7 +102,7 @@ class Feature1TaskPanel:
         self.fp.Base = FreeCAD.ActiveDocument.getObject(self.form.labelSelected.text())
         self.fp.Green = self.form.radioButtonGreen.isChecked()
         
-        redrawFeature1(self.fp)
+        redrawDimple(self.fp)
         FreeCADGui.ActiveDocument.resetEdit()
         return True
         
@@ -121,10 +121,10 @@ class Feature1TaskPanel:
     def _changeColor(self):
         '''called when a radio button defined in the .ui file is pressed'''
         self.fp.Green = self.form.radioButtonGreen.isChecked()
-        changeFeature1Color(self.fp)
+        changeDimpleColor(self.fp)
         
        
-def redrawFeature1(fp):
+def redrawDimple(fp):
     # check plausibility of all parameters
     if not fp.Base:
         return
@@ -135,30 +135,30 @@ def redrawFeature1(fp):
     # place the new object on top of the selected one
     fp.Placement.Base.z += fp.Base.Shape.BoundBox.ZLength
     
-    changeFeature1Color(fp)
+    changeDimpleColor(fp)
     
        
-def changeFeature1Color(fp):   
+def changeDimpleColor(fp):   
     if fp.Green:
         fp.ViewObject.ShapeColor = (0.00, 1.00, 0.00)
     else:
         fp.ViewObject.ShapeColor = (1.00, 0.00, 0.00) 
     
         
-class Feature1():
+class Dimple():
     '''This class will be loaded when the workbench is activated in FreeCAD. You must restart FreeCAD to apply changes in this class'''  
       
     def Activated(self):
         '''Will be called when the feature is executed.'''
-        # Generate commands in the FreeCAD python console to create Feature1
-        FreeCADGui.doCommand("import PythonWorkbenchTemplate")
+        # Generate commands in the FreeCAD python console to create dimple
+        FreeCADGui.doCommand("import GolfBallDesign")
         
         selection = FreeCADGui.Selection.getSelectionEx()
         if len(selection) > 0:
             FreeCADGui.doCommand("base = FreeCAD.ActiveDocument.getObject('%s')"%(selection[0].ObjectName))
-            FreeCADGui.doCommand("PythonWorkbenchTemplate.makeFeature1(base)")
+            FreeCADGui.doCommand("GolfBallDesign.makeDimple(base)")
         else:            
-            FreeCADGui.doCommand("PythonWorkbenchTemplate.makeFeature1()")
+            FreeCADGui.doCommand("GolfBallDesign.makeDimple()")
                   
 
     def IsActive(self):
@@ -173,7 +173,7 @@ class Feature1():
         '''Return the icon which will appear in the tree view. This method is optional and if not defined a default icon is shown.'''
         return {'Pixmap'  : __iconpath__,
                 'Accel' : "", # a default shortcut (optional)
-                'MenuText': "Feature1",
+                'MenuText': "Dimple",
                 'ToolTip' : __doc__ }
 
-FreeCADGui.addCommand('Feature1', Feature1())
+FreeCADGui.addCommand('Dimple', Dimple())

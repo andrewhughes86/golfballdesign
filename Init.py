@@ -1,2 +1,2 @@
-# FreeCAD init script of the PythonWorkbenchTemplate module
-# (c) 2020 Christian Bergmann LGPL
+# FreeCAD init script of the GolfBallDesign module
+# (c) 2024 Andy Hughes LGPL
