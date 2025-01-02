@@ -10,14 +10,14 @@ import FreeCADGui
 import Part
 import Sketcher
 
-from PySide import QtGui, QtCore
+from PySide import QtGui
 
 __dir__ = os.path.dirname(__file__)
-__iconpath__ = os.path.join(__dir__, 'BallDiameter.svg')
+__iconpath__ = os.path.join(__dir__, 'GolfBall.svg')
 
 
-class BallDiameter:
-    """The BallDiameter command."""
+class GolfBall:
+    """The creat Golf BAll command."""
 
     def Activated(self):
         """Create or update a ball by revolving a half-circle."""
@@ -31,9 +31,18 @@ class BallDiameter:
                 doc.recompute()
                 break
 
+        # Create variable for Ball Diameter
+        var_set = doc.addObject("App::VarSet", "BallDiameter")
+        var_set.addProperty("App::PropertyDistance", "Diameter")  # Property is added to the Base group.
+        var_set.Diameter = "1.685 in"
+        #var_set.addProperty("App::PropertyString", "MyText", group="SomeGroup", doc="Some tooltip information")
+        #var_set.MyText = "Golf Ball Diameter"
+        doc.recompute()
+
+
         # Check for an existing revolve feature
         for obj in doc.Objects:
-            if obj.Name == "BallDiameter":
+            if obj.Name == "GolfBall":
                 BallDia = 1.685
                 new_diameter = self.showInputDialog(BallDia)
                 doc.getObject('Sketch').setDatum(5,(new_diameter*25.4))
@@ -51,7 +60,7 @@ class BallDiameter:
     def createRevolvedBall(self, doc, diameter):
         """Create Ball"""
         # Create a new body
-        body = doc.addObject('PartDesign::Body', 'BallDiameter')
+        body = doc.addObject('PartDesign::Body', 'GolfBall')
 
         # Create a new sketch attached to the XY plane
         sketch = body.newObject('Sketcher::SketchObject', 'Sketch')
@@ -70,6 +79,9 @@ class BallDiameter:
         doc.getObject('Sketch').addConstraint(Sketcher.Constraint('PointOnObject',0,3,-2))
         doc.getObject('Sketch').addConstraint(Sketcher.Constraint('PointOnObject',0,3,-1))
         doc.getObject('Sketch').addConstraint(Sketcher.Constraint('Distance',1,1,1,2,42.799000)) 
+        doc.getObject('Sketch').setExpression('Constraints[5]', u'<<BallDiameter>>.Diameter')
+        doc.getObject('Sketch').addConstraint(Sketcher.Constraint('PointOnObject',1,1,-1))
+        #doc.getObject('Sketch').addConstraint(Sketcher.Constraint('TangentViaPoint',-1,1,1,1))
 
         # Hide the sketch
         sketch.ViewObject.Visibility = False
@@ -78,7 +90,7 @@ class BallDiameter:
         FreeCADGui.runCommand('Std_DrawStyle',5)
 
         # Revolve the sketch
-        revolve = body.newObject('PartDesign::Revolution', 'Revolve')
+        revolve = body.newObject('PartDesign::Revolution', 'Ball')
         revolve.Profile = sketch
         revolve.ReferenceAxis = (sketch, 'H_Axis')  # Horizontal axis
         revolve.Angle = 360  # Full revolution
@@ -86,6 +98,10 @@ class BallDiameter:
         # Recompute the document
         doc.recompute()
         FreeCADGui.SendMsgToActiveView("ViewFit")
+
+        # Add Folder
+        doc.addObject('App::DocumentObjectGroup','Group')
+        doc.Group.Label = 'DatumPlanes'
 
     def updateRevolvedBall(self, revolve, diameter):
         """Update the diameter of an existing revolve."""
@@ -127,9 +143,9 @@ class BallDiameter:
         """Return resources for the command."""
         return {
             'Pixmap': __iconpath__,
-            'MenuText': "BallDiameter",
+            'MenuText': "GolfBall",
             'ToolTip': "Creates or updates a ball by revolving a half-circle sketch.",
         }
+        
 
-
-FreeCADGui.addCommand('BallDiameter', BallDiameter())
+FreeCADGui.addCommand('GolfBall', GolfBall())

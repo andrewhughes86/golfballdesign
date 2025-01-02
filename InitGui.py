@@ -19,10 +19,10 @@ class GolfBallDesign (Workbench):
         "This function is executed when FreeCAD starts"
         # import here all the needed files that create your FreeCAD commands
         from Dimple import Dimple
-        from BallDiameter import BallDiameter
+        from GolfBall import GolfBall
         
         #self.list = ["Dimple"] # A list of command names created in the line above
-        self.list = ["BallDiameter","Dimple"] # A list of command names created in the line above
+        self.list = ["GolfBall","Dimple"] # A list of command names created in the line above
         self.appendToolbar("Golf Ball Design", self.list) # creates a new toolbar with your commands
         self.appendMenu("Golf Ball Design", self.list) # creates a new menu
 

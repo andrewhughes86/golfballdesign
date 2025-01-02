@@ -1,179 +1,147 @@
 # -*- coding: utf-8 -*-
-
 __title__ = "Dimple"
 __author__ = "Andy Hughes"
 __license__ = "LGPL 2.1"
-__doc__ = "An example for a workbench feature"
+__doc__ = "Creates a ball by revolving a half-circle sketch"
 
 import os
-import FreeCADGui
 import FreeCAD
+import FreeCADGui
+import Part
+import Sketcher
 
 __dir__ = os.path.dirname(__file__)
 __iconpath__ = os.path.join(__dir__, 'Dimple.svg')
     
-class DimpleWorker:
-    def __init__(self, 
-                 fp,    # an instance of Part::FeaturePython
-                 base = None,
-                 green = False):
-        fp.addProperty("App::PropertyLink", "Base",  "Dimple",  "This object will be modified by this feature").Base = base
-        fp.addProperty("App::PropertyBool", "Green", "Dimple",  "Colorize the feature green").Green = green
-        
-        fp.Proxy = self
-    
-    def execute(self, fp):
-        '''Do something when doing a recomputation, this method is mandatory'''
-        redrawDimple(fp)
-        
-    def onChanged(self, fp, prop):
-        '''Do something when a property has changed'''
-        if prop == "Base":
-            redrawDimple(fp)
-            
-        if prop == "Green":
-            changeDimpleColor(fp)
+class Dimple:
+    """The Dimple feature."""
 
-
-class DimpleViewProvider:
-    def __init__(self, vobj):
-        '''Set this object to the proxy object of the actual view provider'''
-        vobj.Proxy = self
-        self.Object = vobj.Object
-            
-    def getIcon(self):
-        '''Return the icon which will appear in the tree view. This method is optional and if not defined a default icon is shown.'''
-        return __iconpath__
-
-    def attach(self, vobj):
-        '''Setup the scene sub-graph of the view provider, this method is mandatory'''
-        self.Object = vobj.Object
-        self.onChanged(vobj, "Base")
- 
-    def updateData(self, fp, prop):
-        '''If a property of the handled feature has changed we have the chance to handle this here'''
-        pass
-    
-    def claimChildren(self):
-        '''Return a list of objects that will be modified by this feature'''
-        return [self.Object.Base]
-        
-    def onDelete(self, feature, subelements):
-        '''Here we can do something when the feature will be deleted'''
-        return True
-    
-    def onChanged(self, fp, prop):
-        '''Here we can do something when a single property got changed'''
-        pass
-        
-    def setEdit(self, vobj=None, mode=0):
-        '''Enter edit mode when double clicking onto the feature. Optional.'''
-        # Create a task panel UI
-        self.panel = DimpleTaskPanel(self.Object)
-        FreeCADGui.Control.showDialog(self.panel)
-        return True
-        
-    def __getstate__(self):
-        '''When saving the document this object gets stored using Python's json module.\
-                Since we have some un-serializable parts here -- the Coin stuff -- we must define this method\
-                to return a tuple of all serializable objects or None.'''
-        return None
- 
-    def __setstate__(self, state):
-        '''When restoring the serialized object from document we have the chance to set some internals here.\
-                Since no data were serialized nothing needs to be done here.'''
-        return None
-    
-        
-class DimpleTaskPanel:
-    def __init__(self, fp):
-        self.fp = fp
-        # this will create a Qt widget from our ui file
-        self.form = FreeCADGui.PySideUic.loadUi(os.path.join(__dir__, 'Dimple.ui'))
-        # connect controls from the .ui file to class methods
-        self.form.pushButtonSelect.pressed.connect(self._selectPart)
-        self.form.radioButtonRed.released.connect(self._changeColor)
-        self.form.radioButtonGreen.released.connect(self._changeColor)
-        if self.fp.Base:
-            self.form.labelSelected.setText(self.fp.Base.Name)
-
-    def accept(self):
-        '''called when the OK button in the task panel is pressed'''
-        self.fp.Base = FreeCAD.ActiveDocument.getObject(self.form.labelSelected.text())
-        self.fp.Green = self.form.radioButtonGreen.isChecked()
-        
-        redrawDimple(self.fp)
-        FreeCADGui.ActiveDocument.resetEdit()
-        return True
-        
-    def reject(self):
-        '''called when the Cancel button in the task panel is pressed'''
-        FreeCADGui.ActiveDocument.resetEdit()
-        return True
-    
-    def _selectPart(self):
-        '''called when the Select Part button defined in the .ui file is pressed'''
-        selection = FreeCADGui.Selection.getSelectionEx()
-        if len(selection) > 0:
-            self.fp.Base = FreeCAD.ActiveDocument.getObject(selection[0].ObjectName)
-            self.form.labelSelected.setText(selection[0].ObjectName)
-            
-    def _changeColor(self):
-        '''called when a radio button defined in the .ui file is pressed'''
-        self.fp.Green = self.form.radioButtonGreen.isChecked()
-        changeDimpleColor(self.fp)
-        
-       
-def redrawDimple(fp):
-    # check plausibility of all parameters
-    if not fp.Base:
-        return
-    
-    # fp.Shape contains the newly created object
-    fp.Shape = fp.Base.Shape.copy()
-    fp.Placement = fp.Base.Placement
-    # place the new object on top of the selected one
-    fp.Placement.Base.z += fp.Base.Shape.BoundBox.ZLength
-    
-    changeDimpleColor(fp)
-    
-       
-def changeDimpleColor(fp):   
-    if fp.Green:
-        fp.ViewObject.ShapeColor = (0.00, 1.00, 0.00)
-    else:
-        fp.ViewObject.ShapeColor = (1.00, 0.00, 0.00) 
-    
-        
-class Dimple():
-    '''This class will be loaded when the workbench is activated in FreeCAD. You must restart FreeCAD to apply changes in this class'''  
-      
     def Activated(self):
-        '''Will be called when the feature is executed.'''
-        # Generate commands in the FreeCAD python console to create dimple
-        FreeCADGui.doCommand("import GolfBallDesign")
+        """Create a rotated plane and reference line."""
+        doc = FreeCAD.ActiveDocument
+
+        # Create a new Datum Plane
+        datum_plane = doc.addObject("PartDesign::Plane", "DatumPlane")
+        if datum_plane.Label == "DatumPlane":
+            datum_plane.Label = "DatumPlane001"
+        datum_plane.AttachmentOffset = FreeCAD.Placement(
+            FreeCAD.Vector(0, 0, 0),
+            FreeCAD.Rotation(0, 0, 45)
+        )
+        datum_plane.MapReversed = False
+        datum_plane.AttachmentSupport = [(doc.getObject('Z_Axis'), '')]
+        datum_plane.MapMode = 'ObjectXY'
+
+         # Set plane dimensions
+        datum_plane.ResizeMode = u"Manual"
+        datum_plane.Length = 60  # Length of the plane
+        datum_plane.Width = 60   # Width of the plane
+        datum_plane.recompute()
+
+        # Move to Datum Plane Folder
+        doc.getObject("Group").addObject(doc.getObject(datum_plane.Name))
+
+        # Provide visual feedback
+        FreeCADGui.ActiveDocument.getObject(datum_plane.Name).Visibility = False
+
+        # Create a sketch on the new datum plane
+        self.dimpleSketch(doc, datum_plane)
+
+        # Create dimple revolve cut
+        #self.dimpleRevolve(doc)
+
+
+    def dimpleSketch(self, doc, plane):
+        """Create a sketch on a given plane with a line at a 45-degree angle."""
+
+        # Activate the body
+        #doc.getObject("BallDiameter")
+        #body = FreeCAD.ActiveDocument.getObject("BallDiameter")
+        #FreeCADGui.ActiveDocument.setEdit(body.Name, 0)
+
+        # Create a new sketch on the specified plane
+        sketch = doc.addObject("Sketcher::SketchObject", "DimpleSketch001")
         
-        selection = FreeCADGui.Selection.getSelectionEx()
-        if len(selection) > 0:
-            FreeCADGui.doCommand("base = FreeCAD.ActiveDocument.getObject('%s')"%(selection[0].ObjectName))
-            FreeCADGui.doCommand("GolfBallDesign.makeDimple(base)")
-        else:            
-            FreeCADGui.doCommand("GolfBallDesign.makeDimple()")
-                  
+        # Set the support of the sketch to the plane
+        sketch.AttachmentSupport = [(plane, '')]
+        
+        # Set the mapping mode
+        sketch.MapMode = "FlatFace"
+
+        # Draw the sketch
+        """Need global variable for ball diameter then update this circle"""
+        sketch.addGeometry(Part.Circle(FreeCAD.Vector(0.0, 0.0, 0.0), FreeCAD.Vector(0.0, 0.0, 1.0), 21.3995))
+        sketch.addGeometry(Part.LineSegment(FreeCAD.Vector(0, 0, 0), FreeCAD.Vector(30, 30, 0)))
+
+        # Toggle construction lines
+        sketch.toggleConstruction(1) 
+        sketch.toggleConstruction(0) 
+
+        # Create Constraints
+        sketch.addConstraint(Sketcher.Constraint('Coincident',-1,1,0,3))
+        sketch.addConstraint(Sketcher.Constraint('Coincident',-1,1,1,1))
+        sketch.addConstraint(Sketcher.Constraint('PointOnObject',1,2,0))
+        sketch.addConstraint(Sketcher.Constraint('Diameter',0,42.799000))
+        sketch.setExpression('Constraints[3]', u'<<BallDiameter>>.Diameter')
+        sketch.addConstraint(Sketcher.Constraint('Angle',-1,1,1,1,0.316108)) 
+
+        # Single Radius Dimple geometry
+        sketch.addGeometry(Part.LineSegment(FreeCAD.Vector(23.518042, 7.314624, 0.0),FreeCAD.Vector(20.861795, 4.766982, 0.0)))
+        sketch.addGeometry(Part.LineSegment(FreeCAD.Vector(19.925008, 6.516982, 0.0),FreeCAD.Vector(23.518042, 7.314624, 0.0)))
+        sketch.addGeometry(Part.ArcOfCircle(Part.Circle(FreeCAD.Vector(23.518042, 7.314624, 0.000000), FreeCAD.Vector(0.000000, 0.000000, 1.000000), 3.680506), 3.360047, 3.906124))
+       
+        # Single Radius Dimple Constraints
+        sketch.addConstraint(Sketcher.Constraint('Coincident', 4, 3, 2, 1))
+        sketch.addConstraint(Sketcher.Constraint('Coincident', 4, 2, 2, 2))
+        sketch.addConstraint(Sketcher.Constraint('Coincident', 4, 1, 3, 1))
+        sketch.addConstraint(Sketcher.Constraint('Tangent',3,1))
+        sketch.addConstraint(Sketcher.Constraint('Coincident',3,2,2,1))
+        sketch.addConstraint(Sketcher.Constraint('PointOnObject',2,2,0))
+        sketch.addConstraint(Sketcher.Constraint('Distance',3,1,3,2,6.142200)) 
+        sketch.addConstraint(Sketcher.Constraint('Distance',2,2,3,1.692432)) 
+                
+        # Recompute the document
+        doc.recompute() 
+    
+    def dimpleRevolve(self, doc):
+        
+        revolveCut = doc.getObject('BallDiameter').newObject('PartDesign::Groove', 'Dimple001')
+
+        # Extract the last three digits from the `Dimple` command name
+        dimpleLabel = revolveCut.Label
+        #print(revolveCut.Label)
+        dimple_number = dimpleLabel[-3:]  # Assumes the last 3 characters are digits
+        
+        # Construct the DimpleSketch object name
+        sketch_name = f'DimpleSketch{dimple_number}'
+        #print(sketch_name)
+        
+        # Assign the sketch as the profile for the groove
+        doc.getObject(dimpleLabel).Profile = (doc.getObject(sketch_name), ['',])
+        doc.getObject(dimpleLabel).ReferenceAxis = (doc.getObject(sketch_name), ['V_Axis'])
+        doc.getObject(dimpleLabel).Angle = 360.0
+        #doc.getObject(dimpleLabel).Angle2 = 60.000000
+        doc.getObject(dimpleLabel).ReferenceAxis = (doc.getObject(sketch_name), ['Axis0'])
+        doc.getObject(dimpleLabel).Midplane = 0
+        doc.getObject(dimpleLabel).Reversed = 0
+        doc.getObject(dimpleLabel).Type = 0
+        doc.getObject(dimpleLabel).UpToFace = None
+        doc.getObject(dimpleLabel).Visibility = True
+        doc.getObject(sketch_name).Visibility = False
+        
+        # Recompute the document
+        doc.recompute() 
 
     def IsActive(self):
-        """Here you can define if the command must be active or not (greyed) if certain conditions
-        are met or not. This function is optional."""
-        if FreeCAD.ActiveDocument:
-            return(True)
-        else:
-            return(False)
-        
+        """Check if the command is active."""
+        return bool(FreeCAD.ActiveDocument)
+
     def GetResources(self):
-        '''Return the icon which will appear in the tree view. This method is optional and if not defined a default icon is shown.'''
-        return {'Pixmap'  : __iconpath__,
-                'Accel' : "", # a default shortcut (optional)
-                'MenuText': "Dimple",
-                'ToolTip' : __doc__ }
+        """Return resources for the command."""
+        return {
+            'Pixmap': __iconpath__,
+            'MenuText': "Dimple",
+            'ToolTip': "Creates a rotated plane and reference line for dimples.",
+        }
 
 FreeCADGui.addCommand('Dimple', Dimple())

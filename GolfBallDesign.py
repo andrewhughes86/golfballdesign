@@ -12,13 +12,13 @@ def get_module_path():
     """
     return os.path.dirname(__file__)
 
-def makeBallDiameter(base = None, green = False):
+def makeGolfBall(base = None, green = False):
     '''Python command to create a Dimple.'''
-    from BallDiameter import BallDiameter      
-    reload(BallDiameter)     # causes FreeCAD to reload BallDiameter.py every time a new Ball is created. Useful while developping the feature.      
-    fp = FreeCAD.ActiveDocument.addObject("Part::FeaturePython", "BallDiameter")
-    BallDiameter.BallDiameterWorker(fp, base, green)
-    vp = BallDiameter.BallDiameterViewProvider(fp.ViewObject)
+    from GolfBall import GolfBall      
+    reload(GolfBall)     # causes FreeCAD to reload GolfBall.py every time a new Ball is created. Useful while developping the feature.      
+    fp = FreeCAD.ActiveDocument.addObject("Part::FeaturePython", "GolfBall")
+    GolfBall.GolfBallWorker(fp, base, green)
+    vp = GolfBall.GolfBallViewProvider(fp.ViewObject)
     FreeCAD.ActiveDocument.recompute()
     vp.setEdit(fp)
     return fp
