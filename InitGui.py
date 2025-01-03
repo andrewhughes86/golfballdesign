@@ -13,7 +13,7 @@ class GolfBallDesign (Workbench):
         import GolfBallDesign
         self.__class__.MenuText = "Golf Ball Design"
         self.__class__.ToolTip = "A Golf Ball Design workbench"
-        self.__class__.Icon = os.path.join(GolfBallDesign.get_module_path(), "FreeCAD_logo.svg")
+        self.__class__.Icon = os.path.join(GolfBallDesign.get_module_path(), "FreeCAD_Logo.svg")
 
     def Initialize(self):
         "This function is executed when FreeCAD starts"
