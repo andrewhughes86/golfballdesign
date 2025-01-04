@@ -46,12 +46,12 @@ class CustomWidget(QWidget):
         label5 = QLabel("Phi:")
 
         # Buttons
-        resolution_label = QLabel("Resolution: (Q,E)")
+        resolution_label = QLabel("Resolution(deg): (Q,E)")
         button_layout = QHBoxLayout()
 
         button_style = """
         QToolButton {
-            background-color: #a9a9a9;
+            background-color: #447B98;
             border: 1px solid #303030;
             border-radius: 10px; /* Rounded corners */
             padding: 5px;
@@ -64,7 +64,7 @@ class CustomWidget(QWidget):
         }
         """
 
-        for btn_text in ["0.1", "1", "2", "3", "4", "5"]:
+        for btn_text in ["0.1", "0.5", "1", "3", "5", "10"]:
             button = QToolButton()
             button.setText(btn_text)
             button.setFixedWidth(30)  
@@ -110,19 +110,26 @@ class CustomWidget(QWidget):
     def update_selected_body(self):
         """Update the selected body label dynamically."""
         selected_label = get_selected_body_label()
-        self.selected_body_label.setText(f"Selected Body: {selected_label or 'None'}")
+        self.selected_body_label.setText({selected_label or 'None'})
+        
+        # Apply bold and change font size
+        self.selected_body_label.setStyleSheet("""
+            font-size: 16px;  /* Change text size */
+            font-weight: bold;  /* Make text bold */
+        """)
+
 
 
 class MyDockWidget(QDockWidget):
     def __init__(self):
-        super().__init__("Dimple")
+        super().__init__("Dimple Toolbar")
         self.custom_widget = CustomWidget(
             input_text1="Dimple Diameter",
             input_text2="Dimple Depth",
             input_text3="Dimple Radius",
             input_text4="Theta",
             input_text5="Phi",
-            button_width=20,  # Example button width customization
+            
         )
         self.setWidget(self.custom_widget)
 
