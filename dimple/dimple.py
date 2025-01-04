@@ -19,9 +19,25 @@ class Dimple:
     def Activated(self):
         """Create a rotated plane and reference line."""
         doc = FreeCAD.ActiveDocument
+        doc.recompute()
+        
+        # Run a dimple sketch
+        self.dimpleSketch(doc)
+
+        # Run dimple revolve
+        #self.dimpleRevolve(doc)
+
+
+    def dimpleSketch(self, doc):
+        """Create a sketch on a given plane with a line at a 45-degree angle."""
+
+        # Create the body
+        dimpleBody = doc.addObject('PartDesign::Body', 'Dimple001')
 
         # Create a new Datum Plane
         datum_plane = doc.addObject("PartDesign::Plane", "DatumPlane")
+        dimpleBody.Group = dimpleBody.Group + [datum_plane]  # Assign the plane to the body
+
         if datum_plane.Label == "DatumPlane":
             datum_plane.Label = "DatumPlane001"
         datum_plane.AttachmentOffset = FreeCAD.Placement(
@@ -38,32 +54,17 @@ class Dimple:
         datum_plane.Width = 60   # Width of the plane
         datum_plane.recompute()
 
-        # Move to Datum Plane Folder
-        doc.getObject("Group").addObject(doc.getObject(datum_plane.Name))
-
         # Provide visual feedback
         FreeCADGui.ActiveDocument.getObject(datum_plane.Name).Visibility = False
-
-        # Create a sketch on the new datum plane
-        self.dimpleSketch(doc, datum_plane)
-
-        # Create dimple revolve cut
-        #self.dimpleRevolve(doc)
-
-
-    def dimpleSketch(self, doc, plane):
-        """Create a sketch on a given plane with a line at a 45-degree angle."""
-
-        # Activate the body
-        #doc.getObject("BallDiameter")
-        #body = FreeCAD.ActiveDocument.getObject("BallDiameter")
-        #FreeCADGui.ActiveDocument.setEdit(body.Name, 0)
 
         # Create a new sketch on the specified plane
         sketch = doc.addObject("Sketcher::SketchObject", "DimpleSketch001")
         
+        # Move sketch under the body
+        dimpleBody.addObject(sketch)
+
         # Set the support of the sketch to the plane
-        sketch.AttachmentSupport = [(plane, '')]
+        sketch.AttachmentSupport = [(datum_plane, '')]
         
         # Set the mapping mode
         sketch.MapMode = "FlatFace"
@@ -83,54 +84,106 @@ class Dimple:
         sketch.addConstraint(Sketcher.Constraint('PointOnObject',1,2,0))
         sketch.addConstraint(Sketcher.Constraint('Diameter',0,42.799000))
         sketch.setExpression('Constraints[3]', u'<<BallDiameter>>.Diameter')
-        sketch.addConstraint(Sketcher.Constraint('Angle',-1,1,1,1,0.316108)) 
 
         # Single Radius Dimple geometry
-        sketch.addGeometry(Part.LineSegment(FreeCAD.Vector(23.518042, 7.314624, 0.0),FreeCAD.Vector(20.861795, 4.766982, 0.0)))
-        sketch.addGeometry(Part.LineSegment(FreeCAD.Vector(19.925008, 6.516982, 0.0),FreeCAD.Vector(23.518042, 7.314624, 0.0)))
-        sketch.addGeometry(Part.ArcOfCircle(Part.Circle(FreeCAD.Vector(23.518042, 7.314624, 0.000000), FreeCAD.Vector(0.000000, 0.000000, 1.000000), 3.680506), 3.360047, 3.906124))
-       
+        sketch.addGeometry(Part.ArcOfCircle(Part.Circle(FreeCAD.Vector(23.518042, 7.314624, 0.0), FreeCAD.Vector(0.0, 0.0, 1.0), 3.680506), 3.360047, 3.906124))
+        sketch.addGeometry(Part.LineSegment(FreeCAD.Vector(19.925008, 6.516981, 0.0),FreeCAD.Vector(20.339209, 6.652457, 0.0)))
+        sketch.addGeometry(Part.ArcOfCircle(Part.Circle(FreeCAD.Vector(0.0, 0.0, 0.0), FreeCAD.Vector(0.0, 0.0, 1.0), 21.399501), 0.224646, 0.316108))
+        
         # Single Radius Dimple Constraints
-        sketch.addConstraint(Sketcher.Constraint('Coincident', 4, 3, 2, 1))
-        sketch.addConstraint(Sketcher.Constraint('Coincident', 4, 2, 2, 2))
-        sketch.addConstraint(Sketcher.Constraint('Coincident', 4, 1, 3, 1))
-        sketch.addConstraint(Sketcher.Constraint('Tangent',3,1))
-        sketch.addConstraint(Sketcher.Constraint('Coincident',3,2,2,1))
-        sketch.addConstraint(Sketcher.Constraint('PointOnObject',2,2,0))
-        sketch.addConstraint(Sketcher.Constraint('Distance',3,1,3,2,6.142200)) 
-        sketch.addConstraint(Sketcher.Constraint('Distance',2,2,3,1.692432)) 
-                
+        sketch.addConstraint(Sketcher.Constraint('Coincident', 3, 1, 2, 1))
+        sketch.addConstraint(Sketcher.Constraint('Coincident', 3, 2, 1, 2))
+        sketch.addConstraint(Sketcher.Constraint('Coincident', 4, 3, 0, 3))
+        sketch.addConstraint(Sketcher.Constraint('Coincident', 4, 1, 2, 2))
+        sketch.addConstraint(Sketcher.Constraint('Coincident', 4, 2, 1, 2))
+        sketch.addConstraint(Sketcher.Constraint('PointOnObject',2,1,1))
+        sketch.addConstraint(Sketcher.Constraint('Angle',-1,1,1,1,0.261799)) 
+        sketch.addConstraint(Sketcher.Constraint('Distance',2,2,3,1.492078)) 
+        sketch.addConstraint(Sketcher.Constraint('Distance',3,1,3,2,0.304800)) 
+        sketch.addConstraint(Sketcher.Constraint('Radius',2,5.08))  
+        sketch.renameConstraint(10, u'Theta')    
+
         # Recompute the document
         doc.recompute() 
-    
-    def dimpleRevolve(self, doc):
-        
-        revolveCut = doc.getObject('BallDiameter').newObject('PartDesign::Groove', 'Dimple001')
+
+
+
 
         # Extract the last three digits from the `Dimple` command name
-        dimpleLabel = revolveCut.Label
-        #print(revolveCut.Label)
+        dimpleLabel = sketch.Label
+
+        #print(body.Label)
         dimple_number = dimpleLabel[-3:]  # Assumes the last 3 characters are digits
-        
+
         # Construct the DimpleSketch object name
         sketch_name = f'DimpleSketch{dimple_number}'
         #print(sketch_name)
+
+        # Construct the body name
+        body_name = f'Dimple{dimple_number}'
+
+        # Ensure the sketch is inside the body
+        body = doc.getObject(body_name)
+
+        # Add Revolution feature to the body
+        revolveDimple = body.newObject('PartDesign::Revolution', 'DimpleRevolve001')
         
-        # Assign the sketch as the profile for the groove
-        doc.getObject(dimpleLabel).Profile = (doc.getObject(sketch_name), ['',])
-        doc.getObject(dimpleLabel).ReferenceAxis = (doc.getObject(sketch_name), ['V_Axis'])
-        doc.getObject(dimpleLabel).Angle = 360.0
-        #doc.getObject(dimpleLabel).Angle2 = 60.000000
-        doc.getObject(dimpleLabel).ReferenceAxis = (doc.getObject(sketch_name), ['Axis0'])
-        doc.getObject(dimpleLabel).Midplane = 0
-        doc.getObject(dimpleLabel).Reversed = 0
-        doc.getObject(dimpleLabel).Type = 0
-        doc.getObject(dimpleLabel).UpToFace = None
-        doc.getObject(dimpleLabel).Visibility = True
-        doc.getObject(sketch_name).Visibility = False
+        # Set the properties of the Revolution
+        revolveDimple.Profile = (doc.getObject(sketch_name), [''])
+        revolveDimple.Angle = 360.0
+        revolveDimple.ReferenceAxis = (doc.getObject(sketch_name), ['Axis0'])
+        revolveDimple.Midplane = False
+        revolveDimple.Reversed = False
+        revolveDimple.Type = 0  # Specifies the revolution type
+        revolveDimple.UpToFace = None
+
+        # Update visibility settings
+        doc.getObject('DatumPlane').Visibility = False
+        doc.getObject('DimpleSketch001').Visibility = False
+
+        # Set the body color to purple
+        body.ViewObject.ShapeColor = (0.5, 0.0, 0.5) 
         
-        # Recompute the document
-        doc.recompute() 
+        # Recompute the document to apply changes
+        doc.recompute()
+    
+    # def dimpleRevolve(self, doc):
+        # # Ensure the sketch is inside the body
+        # body = doc.getObject('Dimple001')
+
+        # # Extract the last three digits from the `Dimple` command name
+        # dimpleLabel = sketch.Label
+
+        # #print(body.Label)
+        # dimple_number = dimpleLabel[-3:]  # Assumes the last 3 characters are digits
+        
+        # # Construct the DimpleSketch object name
+        # sketch_name = f'DimpleSketch{dimple_number}'
+        # #print(sketch_name)
+        
+        
+        # # Add Revolution feature to the body
+        # revolveDimple = body.newObject('PartDesign::Revolution', 'DimpleRevolve001')
+        
+        # # Set the properties of the Revolution
+        # revolveDimple.Profile = (doc.getObject(sketch_name), [''])
+        # revolveDimple.Angle = 360.0
+        # revolveDimple.ReferenceAxis = (doc.getObject(sketch_name), ['Axis0'])
+        # revolveDimple.Midplane = False
+        # revolveDimple.Reversed = False
+        # revolveDimple.Type = 0  # Specifies the revolution type
+        # revolveDimple.UpToFace = None
+
+        # # Update visibility settings
+        # doc.getObject('DatumPlane').Visibility = False
+        # doc.getObject('DimpleSketch001').Visibility = False
+
+        # # Set the body color to purple
+        # body.ViewObject.ShapeColor = (0.5, 0.0, 0.5) 
+        
+        # # Recompute the document to apply changes
+        # doc.recompute()
+ 
 
     def IsActive(self):
         """Check if the command is active."""

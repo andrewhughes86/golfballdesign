@@ -40,22 +40,24 @@ class GolfBall:
         doc.recompute()
 
 
-        # Check for an existing revolve feature
-        for obj in doc.Objects:
-            if obj.Name == "GolfBall":
-                BallDia = 1.685
-                new_diameter = self.showInputDialog(BallDia)
-                doc.getObject('Sketch').setDatum(5,(new_diameter*25.4))
-                doc.recompute()
-                FreeCADGui.SendMsgToActiveView("ViewFit")
-                print("The ball diameter is now " + str(new_diameter)+"in")
-                break
+        # # Check for an existing revolve feature
+        # for obj in doc.Objects:
+        #     if obj.Name == "GolfBall":
+        #         BallDia = 1.685
+        #         new_diameter = self.showInputDialog(BallDia)
+        #         doc.getObject('Sketch').setDatum(5,(new_diameter*25.4))
+        #         doc.recompute()
+        #         FreeCADGui.SendMsgToActiveView("ViewFit")
+        #         print("The ball diameter is now " + str(new_diameter)+"in")
+        #         break
 
-        else:
-            # If no revolve exists, create a new one
-            diameter = self.showInputDialog(1.685)  # Default diameter
-            if diameter > 0:
-                self.createRevolvedBall(doc, diameter)
+        # else:
+        #     # If no revolve exists, create a new one
+        #     diameter = self.showInputDialog(1.685)  # Default diameter
+        #     if diameter > 0:
+        #         self.createRevolvedBall(doc, diameter)
+        diameter = 1.685
+        self.createRevolvedBall(doc, diameter)
 
     def createRevolvedBall(self, doc, diameter):
         """Create Ball"""
@@ -98,10 +100,6 @@ class GolfBall:
         # Recompute the document
         doc.recompute()
         FreeCADGui.SendMsgToActiveView("ViewFit")
-
-        # Add Folder
-        doc.addObject('App::DocumentObjectGroup','Group')
-        doc.Group.Label = 'DatumPlanes'
 
     def updateRevolvedBall(self, revolve, diameter):
         """Update the diameter of an existing revolve."""

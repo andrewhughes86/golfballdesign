@@ -13,7 +13,6 @@ class GolfBallDesign (Workbench):
         import GolfBallDesign
         self.__class__.MenuText = "Golf Ball Design"
         self.__class__.ToolTip = "A Golf Ball Design workbench"
-        #self.__class__.Icon = os.path.join(GolfBallDesign.get_module_path(), "FreeCAD_Logo.svg")
         self.__class__.Icon = os.path.join(GolfBallDesign.get_module_path(), "golfball.svg")
 
     def Initialize(self):
@@ -21,18 +20,22 @@ class GolfBallDesign (Workbench):
         # import here all the needed files that create your FreeCAD commands
         from Dimple import Dimple
         from GolfBall import GolfBall
-        
+        from DimpleWidget import CustomWidget
+                
         #self.list = ["Dimple"] # A list of command names created in the line above
-        self.list = ["GolfBall","Dimple"] # A list of command names created in the line above
+        self.list = ["GolfBall","Dimple","CustomWidget"] # A list of command names created in the line above
         self.appendToolbar("Golf Ball Design", self.list) # creates a new toolbar with your commands
         self.appendMenu("Golf Ball Design", self.list) # creates a new menu
+        
 
     def Activated(self):
         "This function is executed when the workbench is activated"
         return
 
     def Deactivated(self):
-        "This function is executed when the workbench is deactivated"
+    #     "This function is executed when the workbench is deactivated."
+    #     if hasattr(self, 'angle_adjuster'):
+    #         self.angle_adjuster.stop_listening()
         return
 
     def ContextMenu(self, recipient):
