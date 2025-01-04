@@ -20,11 +20,15 @@ def get_selected_body_label():
 
 
 class CustomWidget(QWidget):
-    def __init__(self, input_text1="", input_text2="", input_text3="",input_text4="",input_text5="", button_width=20):
+    def __init__(self, input_text1="", input_text2="", input_text3="",input_text4="",input_text5=""):
         super().__init__()
 
         # Selected body label
         self.selected_body_label = QLabel("Selected Body: None")
+
+        # Widget layout (Selected Dimple at the top)
+        layout = QVBoxLayout()
+        layout.addWidget(self.selected_body_label)
 
         # Input fields
         self.line_edit1 = QLineEdit(input_text1)
@@ -53,8 +57,9 @@ class CustomWidget(QWidget):
         QToolButton {
             background-color: #447B98;
             border: 1px solid #303030;
-            border-radius: 10px; /* Rounded corners */
+            border-radius: 5px; /* Rounded corners */
             padding: 5px;
+            font-size: 11px;
         }
         QToolButton:hover {
             background-color: #404040; /* Slightly darker gray on hover */
@@ -84,8 +89,7 @@ class CustomWidget(QWidget):
             movement_buttons.addLayout(row_layout)
 
 
-        # Layouts for input rows
-        layout = QVBoxLayout()
+        
         for lbl, line_edit in [(label1, self.line_edit1), (label2, self.line_edit2), (label3, self.line_edit3), (label4, self.line_edit4),(label5, self.line_edit5)]:
             row_layout = QHBoxLayout()
             row_layout.addWidget(lbl)
@@ -93,7 +97,7 @@ class CustomWidget(QWidget):
             layout.addLayout(row_layout)
 
         # Add widgets to layout
-        layout.addWidget(self.selected_body_label)
+        
         layout.addWidget(resolution_label)
         layout.addLayout(button_layout)
         layout.addWidget(movement_label)
@@ -110,15 +114,23 @@ class CustomWidget(QWidget):
     def update_selected_body(self):
         """Update the selected body label dynamically."""
         selected_label = get_selected_body_label()
-        self.selected_body_label.setText({selected_label or 'None'})
+        
+        # Check if selected_label is valid and slice the last 3 digits
+        if selected_label and isinstance(selected_label, str):
+            dimple_number = selected_label[-3:]
+        else:
+            # If dimple_number is invalid, set a fallback value and make sure it is a string
+            dimple_number = "---"  # You can adjust this based on what you need
+        
+        # Update the label with the correct body name
+        self.selected_body_label.setText(f"Dimple{dimple_number}")
+        self.selected_body_label.setAlignment(Qt.AlignCenter)
         
         # Apply bold and change font size
         self.selected_body_label.setStyleSheet("""
             font-size: 16px;  /* Change text size */
             font-weight: bold;  /* Make text bold */
         """)
-
-
 
 class MyDockWidget(QDockWidget):
     def __init__(self):
@@ -128,8 +140,7 @@ class MyDockWidget(QDockWidget):
             input_text2="Dimple Depth",
             input_text3="Dimple Radius",
             input_text4="Theta",
-            input_text5="Phi",
-            
+            input_text5="Phi", 
         )
         self.setWidget(self.custom_widget)
 

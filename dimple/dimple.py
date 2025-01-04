@@ -24,9 +24,6 @@ class Dimple:
         # Run a dimple sketch
         self.dimpleSketch(doc)
 
-        # Run dimple revolve
-        #self.dimpleRevolve(doc)
-
 
     def dimpleSketch(self, doc):
         """Create a sketch on a given plane with a line at a 45-degree angle."""
@@ -35,11 +32,9 @@ class Dimple:
         dimpleBody = doc.addObject('PartDesign::Body', 'Dimple001')
 
         # Create a new Datum Plane
-        datum_plane = doc.addObject("PartDesign::Plane", "DatumPlane")
+        datum_plane = doc.addObject("PartDesign::Plane", "DatumPlane001")
         dimpleBody.Group = dimpleBody.Group + [datum_plane]  # Assign the plane to the body
 
-        if datum_plane.Label == "DatumPlane":
-            datum_plane.Label = "DatumPlane001"
         datum_plane.AttachmentOffset = FreeCAD.Placement(
             FreeCAD.Vector(0, 0, 0),
             FreeCAD.Rotation(0, 0, 45)
@@ -106,9 +101,6 @@ class Dimple:
         # Recompute the document
         doc.recompute() 
 
-
-
-
         # Extract the last three digits from the `Dimple` command name
         dimpleLabel = sketch.Label
 
@@ -138,7 +130,7 @@ class Dimple:
         revolveDimple.UpToFace = None
 
         # Update visibility settings
-        doc.getObject('DatumPlane').Visibility = False
+        doc.getObject('DatumPlane001').Visibility = False
         doc.getObject('DimpleSketch001').Visibility = False
 
         # Set the body color to purple
@@ -146,48 +138,12 @@ class Dimple:
         
         # Recompute the document to apply changes
         doc.recompute()
-    
-    # def dimpleRevolve(self, doc):
-        # # Ensure the sketch is inside the body
-        # body = doc.getObject('Dimple001')
 
-        # # Extract the last three digits from the `Dimple` command name
-        # dimpleLabel = sketch.Label
-
-        # #print(body.Label)
-        # dimple_number = dimpleLabel[-3:]  # Assumes the last 3 characters are digits
-        
-        # # Construct the DimpleSketch object name
-        # sketch_name = f'DimpleSketch{dimple_number}'
-        # #print(sketch_name)
-        
-        
-        # # Add Revolution feature to the body
-        # revolveDimple = body.newObject('PartDesign::Revolution', 'DimpleRevolve001')
-        
-        # # Set the properties of the Revolution
-        # revolveDimple.Profile = (doc.getObject(sketch_name), [''])
-        # revolveDimple.Angle = 360.0
-        # revolveDimple.ReferenceAxis = (doc.getObject(sketch_name), ['Axis0'])
-        # revolveDimple.Midplane = False
-        # revolveDimple.Reversed = False
-        # revolveDimple.Type = 0  # Specifies the revolution type
-        # revolveDimple.UpToFace = None
-
-        # # Update visibility settings
-        # doc.getObject('DatumPlane').Visibility = False
-        # doc.getObject('DimpleSketch001').Visibility = False
-
-        # # Set the body color to purple
-        # body.ViewObject.ShapeColor = (0.5, 0.0, 0.5) 
-        
-        # # Recompute the document to apply changes
-        # doc.recompute()
- 
 
     def IsActive(self):
         """Check if the command is active."""
         return bool(FreeCAD.ActiveDocument)
+
 
     def GetResources(self):
         """Return resources for the command."""

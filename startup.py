@@ -1,6 +1,14 @@
+# -*- coding: utf-8 -*-
+
+# Macro Begin: /Users/andyhughes/Library/Application Support/FreeCAD/Macro/startup.FCMacro +++++++++++++++++++++++++++++++++++++++++++++++++
+import FreeCAD
+import PartDesign
+import PartDesignGui
+import GolfBall
+import Dimple
 
 App.newDocument()
-App.setActiveDocument("Unnamed")
+doc = App.setActiveDocument("Unnamed")
 App.ActiveDocument=App.getDocument("Unnamed")
 Gui.ActiveDocument=Gui.getDocument("Unnamed")
 Gui.activeDocument().activeView().viewDefaultOrientation()
@@ -10,18 +18,48 @@ App.activeDocument().addObject('PartDesign::Body','Body')
 App.ActiveDocument.getObject('Body').Label = 'Body'
 # import PartDesignGui
 Gui.activateView('Gui::View3DInventor', True)
-# Gui.activeView().setActiveObject('pdbody', App.activeDocument().Body)
-# Gui.Selection.clearSelection()
-# Gui.Selection.addSelection(App.ActiveDocument.Body)
+
 App.ActiveDocument.recompute()
-### End command PartDesign_Body
-# Gui.Selection.addSelection('Unnamed','Body')
-# Gui.runCommand('Std_OrthographicCamera',1)
-### Begin command Std_Workbench
 Gui.activateWorkbench("GolfBallDesign")
 
 ### End command Std_Workbench
-Gui.runCommand('BallDiameter',0)
+Gui.runCommand('GolfBall',0)
 Gui.Selection.clearSelection()
+
+# Create Dimple 001
 Gui.runCommand('Dimple',0)
-# Macro End: /Users/andyhughes/Library/Application Support/FreeCAD/Macro/startup.FCMacro +++++++++++++++++++++++++++++++++++++++++++++++++
+FreeCAD.getDocument('Unnamed').getObject('DatumPlane001').AttachmentOffset = App.Placement(App.Vector(0,0,0),App.Rotation(App.Vector(0.9999999999999999,0,0),0))
+
+# Create Dimple 002
+Gui.runCommand('Dimple',0)
+FreeCAD.getDocument('Unnamed').getObject('DatumPlane002').AttachmentOffset = App.Placement(App.Vector(0,0,0),App.Rotation(App.Vector(0.9999999999999999,0,0),45))
+
+# Create Dimple 003
+Gui.runCommand('Dimple',0)
+FreeCAD.getDocument('Unnamed').getObject('DatumPlane003').AttachmentOffset = App.Placement(App.Vector(0,0,0),App.Rotation(App.Vector(0.9999999999999999,0,0),90))
+
+# Create Dimple 004
+Gui.runCommand('Dimple',0)
+FreeCAD.getDocument('Unnamed').getObject('DatumPlane004').AttachmentOffset = App.Placement(App.Vector(0,0,0),App.Rotation(App.Vector(0.9999999999999999,0,0),135))
+
+
+# Create Dimple 005
+Gui.runCommand('Dimple',0)
+FreeCAD.getDocument('Unnamed').getObject('DatumPlane005').AttachmentOffset = App.Placement(App.Vector(0,0,0),App.Rotation(App.Vector(0.9999999999999999,0,0),180))
+
+
+# Create Dimple 006
+Gui.runCommand('Dimple',0)
+FreeCAD.getDocument('Unnamed').getObject('DatumPlane006').AttachmentOffset = App.Placement(App.Vector(0,0,0),App.Rotation(App.Vector(0.9999999999999999,0,0),225))
+
+
+# Create Dimple 007
+Gui.runCommand('Dimple',0)
+FreeCAD.getDocument('Unnamed').getObject('DatumPlane007').AttachmentOffset = App.Placement(App.Vector(0,0,0),App.Rotation(App.Vector(0.9999999999999999,0,0),270))
+
+# Create Dimple 008
+Gui.runCommand('Dimple',0)
+FreeCAD.getDocument('Unnamed').getObject('DatumPlane008').AttachmentOffset = App.Placement(App.Vector(0,0,0),App.Rotation(App.Vector(0.9999999999999999,0,0),315))
+
+# Recompute
+App.ActiveDocument.recompute()
