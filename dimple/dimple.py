@@ -97,7 +97,7 @@ class Dimple:
         sketch.addConstraint(Sketcher.Constraint('Coincident', 4, 1, 2, 2))
         sketch.addConstraint(Sketcher.Constraint('Coincident', 4, 2, 1, 2))
         sketch.addConstraint(Sketcher.Constraint('PointOnObject',2,1,1))
-        sketch.addConstraint(Sketcher.Constraint('Angle',-1,1,1,1,0.261799)) 
+        sketch.addConstraint(Sketcher.Constraint('Angle',-1,1,1,1,0.261799))  # Theta
         sketch.addConstraint(Sketcher.Constraint('Distance',2,1,5,0.220902))  # Dimple Depth
         sketch.addConstraint(Sketcher.Constraint('Radius',2,5.08)) 
         sketch.addConstraint(Sketcher.Constraint('Coincident',5,1,2,2)) 

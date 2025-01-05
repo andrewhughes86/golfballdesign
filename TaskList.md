@@ -20,6 +20,8 @@
 - [ ] Dimples of the same diameter automatically same color
 - [ ] Increase the size of WASD buttons and make them closer together to mimic a keyboard
 - [ ] Line break or some way to section the tool plane
+- [ ] Color choose. See: https://stackoverflow.com/questions/18257281/qt-color-picker-widget
+- [ ] Create max and min control for dimension to prevent system errors.
 
 
 
