@@ -149,7 +149,7 @@ class MyWindow:
     def __init__(self):
         self.main_window = FreeCADGui.getMainWindow()
         self.dock_widget = MyDockWidget()
-        self.main_window.addDockWidget(Qt.LeftDockWidgetArea, self.dock_widget)
+        self.main_window.addDockWidget(Qt.RightDockWidgetArea, self.dock_widget)
 
 
 # Initialize the window

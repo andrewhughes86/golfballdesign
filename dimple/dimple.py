@@ -84,6 +84,11 @@ class Dimple:
         sketch.addGeometry(Part.ArcOfCircle(Part.Circle(FreeCAD.Vector(23.518042, 7.314624, 0.0), FreeCAD.Vector(0.0, 0.0, 1.0), 3.680506), 3.360047, 3.906124))
         sketch.addGeometry(Part.LineSegment(FreeCAD.Vector(19.925008, 6.516981, 0.0),FreeCAD.Vector(20.339209, 6.652457, 0.0)))
         sketch.addGeometry(Part.ArcOfCircle(Part.Circle(FreeCAD.Vector(0.0, 0.0, 0.0), FreeCAD.Vector(0.0, 0.0, 1.0), 21.399501), 0.224646, 0.316108))
+        # Depth Construction Line
+        sketch.addGeometry(Part.LineSegment(FreeCAD.Vector(20.861796, 4.766982, 0.000000),FreeCAD.Vector(20.230138, 6.616782, 0.000000)))
+
+        # Toggle construction
+        sketch.toggleConstruction(5) 
         
         # Single Radius Dimple Constraints
         sketch.addConstraint(Sketcher.Constraint('Coincident', 3, 1, 2, 1))
@@ -93,10 +98,21 @@ class Dimple:
         sketch.addConstraint(Sketcher.Constraint('Coincident', 4, 2, 1, 2))
         sketch.addConstraint(Sketcher.Constraint('PointOnObject',2,1,1))
         sketch.addConstraint(Sketcher.Constraint('Angle',-1,1,1,1,0.261799)) 
-        sketch.addConstraint(Sketcher.Constraint('Distance',2,2,3,1.492078)) 
-        sketch.addConstraint(Sketcher.Constraint('Distance',3,1,3,2,0.304800)) 
-        sketch.addConstraint(Sketcher.Constraint('Radius',2,5.08))  
-        sketch.renameConstraint(10, u'Theta')    
+        sketch.addConstraint(Sketcher.Constraint('Distance',2,1,5,0.220902))  # Dimple Depth
+        sketch.addConstraint(Sketcher.Constraint('Radius',2,5.08)) 
+        sketch.addConstraint(Sketcher.Constraint('Coincident',5,1,2,2)) 
+        sketch.addConstraint(Sketcher.Constraint('Perpendicular',3,5))
+        sketch.addConstraint(Sketcher.Constraint('PointOnObject',5,2,0))
+        sketch.addConstraint(Sketcher.Constraint('Distance',5,1,5,2,2.223279)) # Dimple Diameter
+        sketch.renameConstraint(10, u'Theta')
+        sketch.renameConstraint(11, u'DimpleDepth')    
+        sketch.renameConstraint(12, u'DimpleRadius')  
+        sketch.renameConstraint(16, u'DimpleDiameter')  
+
+        # Set dimple dimensions 
+        sketch.setDatum(11,FreeCAD.Units.Quantity('0.203200 mm')) # Dimple Depth    (.008)
+        sketch.setDatum(12,FreeCAD.Units.Quantity('7.620000 mm')) # Dimple Radius   (.300)
+        sketch.setDatum(16,FreeCAD.Units.Quantity('3.048000 mm')) # Dimple Diameter (.120)
 
         # Recompute the document
         doc.recompute() 
