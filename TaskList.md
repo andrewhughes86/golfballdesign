@@ -3,9 +3,9 @@
 ## Known bug
 - [x] DatumPlane001 is outputting it's label as 'DatumPlane'. All sequential planes are off by 001.
 - [ ] 'Selected dimple'. Needs a filter.
+- [ ] New dimple button  does not work
 
 ## ToDo
-- [ ] New dimple button
 - [ ] When a new dimple is create, it becomes the selected dimple
 - [ ] Flower Array button (Arrays around another dimple)
 - [ ] Polar Array button

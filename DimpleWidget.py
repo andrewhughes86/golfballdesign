@@ -6,13 +6,17 @@ from PySide2.QtWidgets import (
     QLineEdit,
     QDockWidget,
     QToolButton,
-    QShortcut
+    QShortcut,
+    QPushButton
 )
 from PySide2.QtGui import QKeySequence
 from PySide2.QtCore import Qt
 import FreeCADGui
 import FreeCAD
 import math
+import subprocess
+import os
+import GolfBallDesign
 
 def get_selected_body_label():
     """Function to get the label of the currently selected body."""
@@ -66,6 +70,7 @@ class CustomWidget(QWidget):
         self.selected_body_label = QLabel("Selected Body: None")
 
         self.setup_shortcuts_for_keys()
+        self.selected_resolution = None
 
         # Widget layout (Selected Dimple at the top)
         layout = QVBoxLayout()
@@ -109,9 +114,9 @@ class CustomWidget(QWidget):
             background-color: #303030; /* Dark gray when pressed */
         }
         """
-        # Button connections for Theta movement
+        # Buttons
         self.button_map = {}  # Store button references to connect them later
-        for btn_text in ["0.1", "0.5", "1", "3", "5", "10"]:
+        for btn_text in ["0.1", "0.5", "1", "3", "5"]:
             button = QToolButton()
             button.setText(btn_text)
             button.setFixedWidth(30)
@@ -135,6 +140,10 @@ class CustomWidget(QWidget):
                     button.clicked.connect(self.decrease_theta)
                 elif btn_text == "S":
                     button.clicked.connect(self.increase_theta)
+                elif btn_text == "A":
+                    button.clicked.connect(self.decrease_phi)
+                elif btn_text == "D":
+                    button.clicked.connect(self.increase_phi)
 
             movement_buttons.addLayout(row_layout)
 
@@ -146,11 +155,32 @@ class CustomWidget(QWidget):
             layout.addLayout(row_layout)
 
 
+        # Add a button to run the Dimple.py script
+        run_script_button = QPushButton("Add Dimple")
+        run_script_button.setStyleSheet("""
+            QPushButton {
+                background-color: #447B98;
+                border: 1px solid #303030;
+                border-radius: 5px;
+                padding: 5px;
+                font-size: 12px;
+            }
+            QPushButton:hover {
+                background-color: #404040;
+            }
+            QPushButton:pressed {
+                background-color: #303030;
+            }
+        """)
+
+
         # Add widgets to layout
         layout.addWidget(resolution_label)
         layout.addLayout(button_layout)
         layout.addWidget(movement_label)
         layout.addLayout(movement_buttons)
+        # Add the button to the layout
+        layout.addWidget(run_script_button)
 
         # Set layout
         self.setLayout(layout)
@@ -161,7 +191,55 @@ class CustomWidget(QWidget):
         self.line_edit3.editingFinished.connect(self.update_dimple_data)
         self.line_edit4.editingFinished.connect(self.update_dimple_data)
         self.line_edit5.editingFinished.connect(self.update_dimple_data)
-    
+        
+    def on_resolution_button_click(self):
+        """Handles the button click event for resolution buttons."""
+        # Get the text of the clicked button
+        clicked_button = self.sender()
+        clicked_resolution = clicked_button.text()
+
+        # Update the selected_resolution variable
+        self.selected_resolution = float(clicked_resolution)  # Store the selected resolution
+
+        # Update the button styles to highlight the selected one
+        for btn_text, button in self.button_map.items():
+            if btn_text == clicked_resolution:
+                # Highlight the selected button
+                button.setStyleSheet("""
+                    QToolButton {
+                        background-color: #006400; /* Green color for selected */
+                        border: 1px solid #303030;
+                        border-radius: 5px;
+                        padding: 5px;
+                        font-size: 11px;
+                    }
+                    QToolButton:hover {
+                        background-color: #404040;
+                    }
+                    QToolButton:pressed {
+                        background-color: #303030;
+                    }
+                """)
+            else:
+                # Reset the other buttons to default style
+                button.setStyleSheet("""
+                    QToolButton {
+                        background-color: #447B98;
+                        border: 1px solid #303030;
+                        border-radius: 5px;
+                        padding: 5px;
+                        font-size: 11px;
+                    }
+                    QToolButton:hover {
+                        background-color: #404040;
+                    }
+                    QToolButton:pressed {
+                        background-color: #303030;
+                    }
+                """)
+
+        print(f"Selected resolution: {self.selected_resolution}")
+
     # Increase theta
     def increase_theta(self):
         current_theta = float(self.line_edit4.text())
@@ -175,7 +253,7 @@ class CustomWidget(QWidget):
         new_theta = current_theta - 1
         self.line_edit4.setText(f"{new_theta:.2f}")
         self.update_dimple_data()
-
+        
     # Increase phi
     def increase_phi(self):
         current_phi = float(self.line_edit5.text())
@@ -209,10 +287,6 @@ class CustomWidget(QWidget):
                 print(f"Shortcut for '{key}' has been set.")
             except Exception as e:
                 print(f"Failed to set shortcut for '{key}': {e}")
-
-
-
-
 
 
     def update_selected_body(self):
