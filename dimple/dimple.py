@@ -97,19 +97,21 @@ class Dimple:
         sketch.addConstraint(Sketcher.Constraint('Coincident', 4, 1, 2, 2))
         sketch.addConstraint(Sketcher.Constraint('Coincident', 4, 2, 1, 2))
         sketch.addConstraint(Sketcher.Constraint('PointOnObject',2,1,1))
-        sketch.addConstraint(Sketcher.Constraint('Angle',-1,1,1,1,0.261799))  # Theta
-        sketch.addConstraint(Sketcher.Constraint('Distance',2,1,5,0.220902))  # Dimple Depth
-        sketch.addConstraint(Sketcher.Constraint('Radius',2,5.08)) 
+        sketch.addConstraint(Sketcher.Constraint('Angle',-1,1,1,1,0.261799))    # Theta
+        sketch.addConstraint(Sketcher.Constraint('Distance',2,1,5,0.220902))    # Dimple Depth
+        sketch.addConstraint(Sketcher.Constraint('Radius',2,5.08))              # Dimple Radius
+        sketch.toggleDriving(12) # Toggle radius to reference dimension
         sketch.addConstraint(Sketcher.Constraint('Coincident',5,1,2,2)) 
         sketch.addConstraint(Sketcher.Constraint('Perpendicular',3,5))
         sketch.addConstraint(Sketcher.Constraint('PointOnObject',5,2,0))
-        sketch.addConstraint(Sketcher.Constraint('Distance',5,1,5,2,2.223279)) # Dimple Diameter
+        sketch.addConstraint(Sketcher.Constraint('Distance',5,1,5,2,2.223279))  # Dimple Diameter
+        sketch.addConstraint(Sketcher.Constraint('PointOnObject',2,3,1))
         sketch.renameConstraint(10, u'Theta')
         sketch.renameConstraint(11, u'DimpleDepth')    
         sketch.renameConstraint(12, u'DimpleRadius')  
         sketch.renameConstraint(16, u'DimpleDiameter')  
 
-        # Set dimple dimensions 
+        # Set default dimple dimensions 
         sketch.setDatum(11,FreeCAD.Units.Quantity('0.203200 mm')) # Dimple Depth    (.008)
         sketch.setDatum(12,FreeCAD.Units.Quantity('7.620000 mm')) # Dimple Radius   (.300)
         sketch.setDatum(16,FreeCAD.Units.Quantity('3.048000 mm')) # Dimple Diameter (.120)

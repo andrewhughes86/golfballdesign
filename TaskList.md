@@ -1,9 +1,10 @@
 ## Project Task List
 
-## Known bug
+## Known bugs
 - [x] DatumPlane001 is outputting it's label as 'DatumPlane'. All sequential planes are off by 001.
-- [ ] 'Selected dimple'. Needs a filter.
-- [ ] New dimple button  does not work
+- [ ] 'Selected dimple'. Needs a filter to not select the ball.
+- [ ] New dimple button does not work
+- [ ] Changing dimple radius occasionally breaks the sketch.
 
 ## ToDo
 - [ ] When a new dimple is create, it becomes the selected dimple
@@ -14,7 +15,7 @@
 - [ ] Dock widget into the correct panel
 - [ ] Possibly add ball diameter textbox
 - [ ] Guide lines (circles around the ball) to aid with design
-- [ ] Macro to cut dimples
+- [x] Macro to cut dimples
 - [x] Add more dimples to startup macro for testing
 - [ ] Color of dimples darkens with dimple depth
 - [ ] Dimples of the same diameter automatically same color

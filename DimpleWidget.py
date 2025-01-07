@@ -14,9 +14,7 @@ from PySide2.QtCore import Qt
 import FreeCADGui
 import FreeCAD
 import math
-import subprocess
-import os
-import GolfBallDesign
+import colorsys
 
 def get_selected_body_label():
     """Function to get the label of the currently selected body."""
@@ -96,7 +94,7 @@ class CustomWidget(QWidget):
         label5 = QLabel("Phi:")
 
         # Buttons
-        resolution_label = QLabel("Resolution(deg): (Q,E)")
+        resolution_label = QLabel("Resolution(deg): (Coming soon!)")
         button_layout = QHBoxLayout()
 
         button_style = """
@@ -123,8 +121,12 @@ class CustomWidget(QWidget):
             button.setStyleSheet(button_style)
             button_layout.addWidget(button)
 
-        movement_label = QLabel("Theta:(W,S) Phi(A,D)")
+        movement_label = QLabel("Dia(-)      Theta(+)      Dia(+)")
+        movement_label2 = QLabel("Phi(-)      Theta(-)      Phi(+)")
+        movement_label.setAlignment(Qt.AlignCenter | Qt.AlignBottom)
+        movement_label2.setAlignment(Qt.AlignCenter | Qt.AlignTop)
         movement_buttons = QVBoxLayout()
+
         for btn_row in [["Q", "W", "E"], ["A", "S", "D"]]:
             row_layout = QHBoxLayout()
             for btn_text in btn_row:
@@ -144,6 +146,10 @@ class CustomWidget(QWidget):
                     button.clicked.connect(self.decrease_phi)
                 elif btn_text == "D":
                     button.clicked.connect(self.increase_phi)
+                elif btn_text == "Q":
+                    button.clicked.connect(self.decrease_dimple_dia)
+                elif btn_text == "E":
+                    button.clicked.connect(self.increase_dimple_dia)
 
             movement_buttons.addLayout(row_layout)
 
@@ -172,13 +178,14 @@ class CustomWidget(QWidget):
                 background-color: #303030;
             }
         """)
-
+        run_script_button.clicked.connect(self.add_dimple_script)
 
         # Add widgets to layout
         layout.addWidget(resolution_label)
         layout.addLayout(button_layout)
         layout.addWidget(movement_label)
         layout.addLayout(movement_buttons)
+        layout.addWidget(movement_label2)
         # Add the button to the layout
         layout.addWidget(run_script_button)
 
@@ -191,7 +198,12 @@ class CustomWidget(QWidget):
         self.line_edit3.editingFinished.connect(self.update_dimple_data)
         self.line_edit4.editingFinished.connect(self.update_dimple_data)
         self.line_edit5.editingFinished.connect(self.update_dimple_data)
-        
+    
+
+    def add_dimple_script(self):
+        FreeCADGui.runCommand('Dimple',0)
+        print("Running Dimple Script...")
+
     def on_resolution_button_click(self):
         """Handles the button click event for resolution buttons."""
         # Get the text of the clicked button
@@ -268,12 +280,26 @@ class CustomWidget(QWidget):
         self.line_edit5.setText(f"{new_phi:.2f}")
         self.update_dimple_data()
 
+    # Increase dimple diameter
+    def increase_dimple_dia(self):
+        current_dia = float(self.line_edit1.text())
+        new_dia = current_dia + 0.005
+        self.line_edit1.setText(f"{new_dia:.3f}")
+        self.update_dimple_data()
+
+    # Decrese dimple diameter
+    def decrease_dimple_dia(self):
+        current_dia = float(self.line_edit1.text())
+        new_dia = current_dia - 0.005
+        self.line_edit1.setText(f"{new_dia:.3f}")
+        self.update_dimple_data()
+
     def setup_shortcuts_for_keys(self):
         """Set up keyboard shortcuts for the widget."""
         key_actions = {
-            "Q": lambda: print("You pressed Q"),
+            "Q": self.decrease_dimple_dia,
             "W": self.decrease_theta,
-            "E": lambda: print("You pressed E"),
+            "E": self.increase_dimple_dia,
             "A": self.decrease_phi,
             "S": self.increase_theta,
             "D": self.increase_phi,
@@ -362,10 +388,60 @@ class CustomWidget(QWidget):
             # Recompute the document to apply changes
             doc.recompute()
             print(f"Dimple{dimple_number} updated successfully.")
-        
+
+            # color test
+            global dimple_diameter
+            global dimple_depth
+            dimple_diameter = diameter
+            dimple_depth = depth
+
+            self.calculate_rgb(diameter, depth)
+          
         except Exception as e:
             print(f"Error updating dimple data: {e}")
 
+
+    # Change dimple color by dimaeter and depth
+
+    def calculate_rgb(self, dimple_diameter, dimple_depth):
+        # Ensure the main number is within the valid range
+        if not (0.050 <= dimple_diameter <= 0.200):
+            raise ValueError("DimpleDiameter must be between 0.050 and 0.200")
+
+        # Ensure the brightness factor is within the valid range
+        if not (0.005 <= dimple_depth <= 0.015):
+            raise ValueError("DimpleDepth must be between 0.005 and 0.015")
+
+        # Normalize the main number to a range of 0 to 1
+        normalized_value = (dimple_diameter - 0.050) / (0.200 - 0.050)
+
+        # Map the normalized value to the Hue (0 to 1)
+        hue = normalized_value
+
+        # Convert HSL to RGB
+        r, g, b = colorsys.hls_to_rgb(hue, 0.5, 1.0)
+        rgb_color = (int(r * 255), int(g * 255), int(b * 255))
+
+        # Invert brightness factor so 0.015 is dark and 0.005 is bright
+        inverted_brightness = 1 - ((dimple_depth - 0.005) / (0.020 - 0.005))
+
+        # Scale down the RGB values by the inverted brightness
+        adjusted_rgb = tuple(int(channel * inverted_brightness) for channel in rgb_color)
+        print("Adjusted RGB:", adjusted_rgb)
+
+        # Get the selected FreeCAD object
+        selected_objects = FreeCADGui.Selection.getSelection()
+        if not selected_objects:
+            raise ValueError("No object selected. Please select an object in FreeCAD.")
+
+        selected_object = selected_objects[0]
+
+        # Set the color to the selected FreeCAD object
+        selected_object.ViewObject.ShapeColor = (adjusted_rgb[0] / 255, adjusted_rgb[1] / 255, adjusted_rgb[2] / 255)
+        print("Updated color:", selected_object.ViewObject.ShapeColor)
+
+        return adjusted_rgb
+ 
 
 class MyDockWidget(QDockWidget):
     def __init__(self):
