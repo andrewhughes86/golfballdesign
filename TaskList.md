@@ -3,13 +3,14 @@
 ## Known bugs
 - [x] DatumPlane001 is outputting it's label as 'DatumPlane'. All sequential planes are off by 001.
 - [ ] 'Selected dimple'. Needs a filter to not select the ball.
-- [ ] New dimple button does not work
+- [x] New dimple button does not work (Linked it to a macro for the time being)
 - [ ] Changing dimple radius occasionally breaks the sketch.
 
 ## ToDo
 - [ ] When a new dimple is create, it becomes the selected dimple
 - [ ] Flower Array button (Arrays around another dimple)
-- [ ] Polar Array button
+- [ ] Look into adding coordinate system to dimples to allow arrarys and possible linking dimples together
+- [ ] Polar Array button (Default polar array works)
 - [x] Move 'selected body' to the top of tool
 - [x] Increase button font size
 - [ ] Dock widget into the correct panel
@@ -17,12 +18,11 @@
 - [ ] Guide lines (circles around the ball) to aid with design
 - [x] Macro to cut dimples
 - [x] Add more dimples to startup macro for testing
-- [ ] Color of dimples darkens with dimple depth
-- [ ] Dimples of the same diameter automatically same color
-- [ ] Increase the size of WASD buttons and make them closer together to mimic a keyboard
+- [x] Color of dimples darkens with dimple depth
+- [x] Dimples of the same diameter automatically same color
 - [ ] Line break or some way to section the tool plane
-- [ ] Color choose. See: https://stackoverflow.com/questions/18257281/qt-color-picker-widget
 - [ ] Create max and min control for dimension to prevent system errors.
+- [ ] Remove WASD buttons and replace with keyboard shortcut instructions.
 
 
 

@@ -153,7 +153,7 @@ class Dimple:
 
         # Set the body color to purple
         body.ViewObject.ShapeColor = (0.5, 0.0, 0.5) 
-        
+
         # Recompute the document to apply changes
         doc.recompute()
 
