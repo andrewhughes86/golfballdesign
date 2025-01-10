@@ -36,13 +36,14 @@ def get_dimple_data(dimple_number):
     rotation = doc.getObject(f'DatumPlane{dimple_number}').AttachmentOffset.Rotation
     axis = rotation.Axis
     angle_radians = rotation.Angle
+    array_occurrence = doc.getObject(f"PolarPattern{dimple_number}").Occurrences
     # If the axis is aligned with the x-axis
     if abs(axis.x - 1.0) < 1e-6 and abs(axis.y) < 1e-6 and abs(axis.z) < 1e-6:
         phi = math.degrees(angle_radians)
     else:
         phi = 0.0  # Fallback if phi calculation fails
 
-    return (diameter, depth, radius, theta, phi)
+    return (diameter, depth, radius, theta, phi, array_occurrence)
 
 
 class SelectionObserver:
@@ -61,7 +62,7 @@ class SelectionObserver:
 
 
 class CustomWidget(QWidget):
-    def __init__(self, input_text1="", input_text2="", input_text3="", input_text4="", input_text5=""):
+    def __init__(self, input_text1="", input_text2="", input_text3="", input_text4="", input_text5="", input_text6=""):
         super().__init__()
 
         # Selected body label
@@ -80,9 +81,10 @@ class CustomWidget(QWidget):
         self.line_edit3 = QLineEdit(input_text3)
         self.line_edit4 = QLineEdit(input_text4)
         self.line_edit5 = QLineEdit(input_text5)
+        self.line_edit6 = QLineEdit(input_text6)
 
         # Set properties for input fields
-        for line_edit in [self.line_edit1, self.line_edit2, self.line_edit3, self.line_edit4, self.line_edit5]:
+        for line_edit in [self.line_edit1, self.line_edit2, self.line_edit3, self.line_edit4, self.line_edit5, self.line_edit6]:
             line_edit.setFixedWidth(120)
             line_edit.setAlignment(Qt.AlignRight)
 
@@ -92,6 +94,7 @@ class CustomWidget(QWidget):
         label3 = QLabel("Radius:")
         label4 = QLabel("Theta:")
         label5 = QLabel("Phi:")
+        label6 = QLabel("Array #:")
 
         # Buttons
         resolution_label = QLabel("Resolution(deg): (Coming soon!)")
@@ -154,7 +157,7 @@ class CustomWidget(QWidget):
             movement_buttons.addLayout(row_layout)
 
         # Add input fields and labels
-        for lbl, line_edit in [(label1, self.line_edit1), (label2, self.line_edit2), (label3, self.line_edit3), (label4, self.line_edit4), (label5, self.line_edit5)]:
+        for lbl, line_edit in [(label1, self.line_edit1), (label2, self.line_edit2), (label3, self.line_edit3), (label4, self.line_edit4), (label5, self.line_edit5), (label6, self.line_edit6)]:
             row_layout = QHBoxLayout()
             row_layout.addWidget(lbl)
             row_layout.addWidget(line_edit)
@@ -198,6 +201,7 @@ class CustomWidget(QWidget):
         self.line_edit3.editingFinished.connect(self.update_dimple_data)
         self.line_edit4.editingFinished.connect(self.update_dimple_data)
         self.line_edit5.editingFinished.connect(self.update_dimple_data)
+        self.line_edit6.editingFinished.connect(self.update_dimple_data)
     
 
     def add_dimple_script(self):
@@ -337,12 +341,13 @@ class CustomWidget(QWidget):
         """)
 
         # Get dimple data and populate the fields
-        diameter, depth, radius, theta, phi = get_dimple_data(dimple_number)
+        diameter, depth, radius, theta, phi, array_occurrence = get_dimple_data(dimple_number)
         self.line_edit1.setText(f"{diameter:.3f}")
         self.line_edit2.setText(f"{depth:.4f}")
         self.line_edit3.setText(f"{radius:.3f}")
         self.line_edit4.setText(f"{theta:.2f}")
         self.line_edit5.setText(f"{phi:.2f}")
+        self.line_edit6.setText(f"{array_occurrence}")
 
 
     def update_dimple_data(self):
@@ -364,6 +369,7 @@ class CustomWidget(QWidget):
             radius = float(self.line_edit3.text())
             theta = float(self.line_edit4.text())
             phi = float(self.line_edit5.text())
+            array_occurrence = int(self.line_edit6.text())
 
             # Get the dimple sketch object
             sketch_obj = doc.getObject(f"DimpleSketch{dimple_number}")
@@ -384,6 +390,9 @@ class CustomWidget(QWidget):
                 plane_obj.AttachmentOffset.Rotation = rotation
             else:
                 print(f"Warning: DatumPlane{dimple_number} not found. Phi not updated.")
+
+            # Update array Occurrence  
+            doc.getObject(f"PolarPattern{dimple_number}").Occurrences = (array_occurrence) 
 
             # Recompute the document to apply changes
             doc.recompute()
@@ -452,6 +461,7 @@ class MyDockWidget(QDockWidget):
             input_text3="Dimple Radius",
             input_text4="Theta",
             input_text5="Phi", 
+            input_text6="Occurrence" 
         )
         self.setWidget(self.custom_widget)
 
