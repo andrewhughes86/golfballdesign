@@ -7,10 +7,9 @@
 - [ ] Changing dimple radius occasionally breaks the sketch.
 
 ## ToDo
-- [ ] When a new dimple is create, it becomes the selected dimple
+- [ ] When a new dimple is created, it becomes the selected dimple
 - [ ] Flower Array button (Arrays around another dimple)
 - [ ] Look into adding coordinate system to dimples to allow arrarys and possible linking dimples together
-- [ ] Polar Array button (Default polar array works)
 - [x] Move 'selected body' to the top of tool
 - [x] Increase button font size
 - [ ] Dock widget into the correct panel
@@ -22,8 +21,10 @@
 - [x] Dimples of the same diameter automatically same color
 - [ ] Line break or some way to section the tool plane
 - [ ] Create max and min control for dimension to prevent system errors.
-- [ ] Remove WASD buttons and replace with keyboard shortcut instructions.
-
+- [x] Remove WASD buttons and replace 
+- [ ] Add keyboard shortcut instructions.
+- [ ] Change polar array function to have a global setting and a way to override it for indivisiual dimples
+- [x] Create a script and button to hide all polar arrayed dimples
 
 
 

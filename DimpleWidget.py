@@ -124,7 +124,7 @@ class CustomWidget(QWidget):
             button.setStyleSheet(button_style)
             button_layout.addWidget(button)
 
-        movement_label = QLabel("Dia(-)      Theta(+)      Dia(+)")
+        movement_label = QLabel("Global Settings")
         movement_label2 = QLabel("Phi(-)      Theta(-)      Phi(+)")
         movement_label.setAlignment(Qt.AlignCenter | Qt.AlignBottom)
         movement_label2.setAlignment(Qt.AlignCenter | Qt.AlignTop)
@@ -142,9 +142,9 @@ class CustomWidget(QWidget):
 
                 # Connect "W" and "S" buttons to their functionality
                 if btn_text == "W":
-                    button.clicked.connect(self.decrease_theta)
+                    button.clicked.connect(self.hide_array)
                 elif btn_text == "S":
-                    button.clicked.connect(self.increase_theta)
+                    button.clicked.connect(self.show_array)
                 elif btn_text == "A":
                     button.clicked.connect(self.decrease_phi)
                 elif btn_text == "D":
@@ -162,6 +162,44 @@ class CustomWidget(QWidget):
             row_layout.addWidget(lbl)
             row_layout.addWidget(line_edit)
             layout.addLayout(row_layout)
+
+        # Hide array button
+        hide_array_button = QPushButton("Hide Arrayed Dimples")
+        hide_array_button.setStyleSheet("""
+            QPushButton {
+                background-color: #447B98;
+                border: 1px solid #303030;
+                border-radius: 5px;
+                padding: 5px;
+                font-size: 12px;
+            }
+            QPushButton:hover {
+                background-color: #404040;
+            }
+            QPushButton:pressed {
+                background-color: #303030;
+            }
+        """)
+        hide_array_button.clicked.connect(self.hide_array)
+
+        # Show array button
+        show_array_button = QPushButton("Show Arrayed Dimples")
+        show_array_button.setStyleSheet("""
+            QPushButton {
+                background-color: #447B98;
+                border: 1px solid #303030;
+                border-radius: 5px;
+                padding: 5px;
+                font-size: 12px;
+            }
+            QPushButton:hover {
+                background-color: #404040;
+            }
+            QPushButton:pressed {
+                background-color: #303030;
+            }
+        """)
+        show_array_button.clicked.connect(self.show_array)
 
 
         # Add a button to run the Dimple.py script
@@ -181,15 +219,19 @@ class CustomWidget(QWidget):
                 background-color: #303030;
             }
         """)
+        hide_array_button.clicked.connect(self.hide_array)
+        show_array_button.clicked.connect(self.show_array)
         run_script_button.clicked.connect(self.add_dimple_script)
 
         # Add widgets to layout
         layout.addWidget(resolution_label)
         layout.addLayout(button_layout)
         layout.addWidget(movement_label)
-        layout.addLayout(movement_buttons)
-        layout.addWidget(movement_label2)
+        #layout.addLayout(movement_buttons)
+        #layout.addWidget(movement_label2)
         # Add the button to the layout
+        layout.addWidget(hide_array_button)
+        layout.addWidget(show_array_button)
         layout.addWidget(run_script_button)
 
         # Set layout
@@ -255,6 +297,22 @@ class CustomWidget(QWidget):
                 """)
 
         print(f"Selected resolution: {self.selected_resolution}")
+
+    # Hide arrayed dimples
+    def hide_array(self):
+        for obj in FreeCAD.ActiveDocument.Objects:
+            if obj.isDerivedFrom("PartDesign::Revolution"):
+                # print(obj.Name)
+                obj.ViewObject.Visibility = True
+        FreeCAD.ActiveDocument.recompute()
+
+    # Show arrayed dimples
+    def show_array(self):
+        for obj in FreeCAD.ActiveDocument.Objects:
+            if obj.isDerivedFrom("PartDesign::PolarPattern"):
+                # print(obj.Name)
+                obj.ViewObject.Visibility = True
+        FreeCAD.ActiveDocument.recompute()
 
     # Increase theta
     def increase_theta(self):
