@@ -7,7 +7,8 @@ from PySide2.QtWidgets import (
     QDockWidget,
     QToolButton,
     QShortcut,
-    QPushButton
+    QPushButton,
+    QFrame
 )
 from PySide2.QtGui import QKeySequence
 from PySide2.QtCore import Qt
@@ -223,16 +224,26 @@ class CustomWidget(QWidget):
         show_array_button.clicked.connect(self.show_array)
         run_script_button.clicked.connect(self.add_dimple_script)
 
+
+        # Add a line separator
+        line = QFrame()
+        line.setFrameShape(QFrame.HLine)
+        line.setFrameShadow(QFrame.Sunken)
+        line.setStyleSheet("background-color: white; height: 1px;")
+        
+
         # Add widgets to layout
         layout.addWidget(resolution_label)
         layout.addLayout(button_layout)
+        layout.addWidget(run_script_button)
+        layout.addWidget(line)
         layout.addWidget(movement_label)
         #layout.addLayout(movement_buttons)
         #layout.addWidget(movement_label2)
         # Add the button to the layout
         layout.addWidget(hide_array_button)
         layout.addWidget(show_array_button)
-        layout.addWidget(run_script_button)
+        
 
         # Set layout
         self.setLayout(layout)
@@ -369,12 +380,8 @@ class CustomWidget(QWidget):
 
         # Create shortcuts for the widget
         for key, action in key_actions.items():
-            try:
-                shortcut = QShortcut(QKeySequence(key), self)  # Attach to self (CustomWidget)
-                shortcut.activated.connect(action)
-                print(f"Shortcut for '{key}' has been set.")
-            except Exception as e:
-                print(f"Failed to set shortcut for '{key}': {e}")
+            shortcut = QShortcut(QKeySequence(key), self)  # Attach to self (CustomWidget)
+            shortcut.activated.connect(action)            
 
 
     def update_selected_body(self):

@@ -161,13 +161,8 @@ class Dimple:
         doc.getObject('DatumPlane001').Visibility = False
         doc.getObject('DimpleSketch001').Visibility = False
 
-        # Set the body color to purple
-        body.ViewObject.ShapeColor = (0.5, 0.0, 0.5)
-
-        
         # Polar Array
         doc.getObject(body_name).newObject('PartDesign::PolarPattern',polarPattern_name)
-        doc.getObject(body_name).Tip = doc.getObject(polarPattern_name)
         doc.getObject(polarPattern_name).Axis = (doc.getObject(Z_Axis_name), [''])
         doc.getObject(polarPattern_name).TransformMode = u"Transform body"
         doc.getObject(polarPattern_name).Reversed = 0
@@ -176,11 +171,16 @@ class Dimple:
         doc.getObject(polarPattern_name).Occurrences = 5
         doc.getObject(polarPattern_name).Visibility = True
         doc.getObject(revolve_name).Visibility = False
-        FreeCADGui.Selection.addSelection('Unnamed',body_name, polarPattern_name)
-        
 
-        # Recompute the document to apply changes
-        
+        # Recompute
+        doc.recompute()
+
+        # Set Tip
+        doc.getObject(body_name).Tip = doc.getObject(polarPattern_name)
+        FreeCADGui.Selection.addSelection('Unnamed',body_name, polarPattern_name)
+
+        # Set the body color
+        body.ViewObject.ShapeColor = (0, 204, 162)
 
 
     def IsActive(self):

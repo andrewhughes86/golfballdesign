@@ -1,7 +1,7 @@
 # Golf Ball Design Workbench 
 
-<img src="./golfball.svg" width="100" height="100" alt="golfball design logo>
- 
+<img src="./golfball.svg" alt="GolfBallIcon" width="100" height="100">
+
     
 A specialized FreeCAD workbench designed to simplify and enhance the process designing golf balls. This project is in early development and I do not recomend installing at this time.
 
