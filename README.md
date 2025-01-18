@@ -15,7 +15,7 @@ Once installed all that is needed is to restart FreeCAD and the workbench will b
 
 ```bash
 cd ~/FreeCAD/Mod/ 
-git clone https://github.com/chbergmann/GolfBallDesign.git
+git clone https://github.com/andrewhughes86/GolfBallDesign.git
 ```
 When you restart FreeCAD, "Python Workbench Template" workbench should now show up in the [workbench dropdown list](https://freecadweb.org/wiki/Std_Workbench).
   

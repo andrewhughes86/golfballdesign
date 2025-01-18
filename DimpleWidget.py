@@ -58,8 +58,8 @@ class SelectionObserver:
     def removeSelection(self, doc, obj, sub):
         self.custom_widget.update_selected_body()
 
-    def clearSelection(self, doc):
-        self.custom_widget.update_selected_body()
+    #def clearSelection(self, doc):
+    #    self.custom_widget.update_selected_body()
 
 
 class CustomWidget(QWidget):
@@ -76,7 +76,7 @@ class CustomWidget(QWidget):
         layout = QVBoxLayout()
         layout.addWidget(self.selected_body_label)
 
-        # Input fields
+        # Input fieldsx
         self.line_edit1 = QLineEdit(input_text1)
         self.line_edit2 = QLineEdit(input_text2)
         self.line_edit3 = QLineEdit(input_text3)
@@ -125,37 +125,8 @@ class CustomWidget(QWidget):
             button.setStyleSheet(button_style)
             button_layout.addWidget(button)
 
-        movement_label = QLabel("Global Settings")
-        movement_label2 = QLabel("Phi(-)      Theta(-)      Phi(+)")
-        movement_label.setAlignment(Qt.AlignCenter | Qt.AlignBottom)
-        movement_label2.setAlignment(Qt.AlignCenter | Qt.AlignTop)
-        movement_buttons = QVBoxLayout()
-
-        for btn_row in [["Q", "W", "E"], ["A", "S", "D"]]:
-            row_layout = QHBoxLayout()
-            for btn_text in btn_row:
-                button = QToolButton()
-                button.setText(btn_text)
-                button.setFixedWidth(30)  # Adjust width if needed
-                button.setStyleSheet(button_style)
-                row_layout.addWidget(button)
-                self.button_map[btn_text] = button  # Add button to button_map
-
-                # Connect "W" and "S" buttons to their functionality
-                if btn_text == "W":
-                    button.clicked.connect(self.hide_array)
-                elif btn_text == "S":
-                    button.clicked.connect(self.show_array)
-                elif btn_text == "A":
-                    button.clicked.connect(self.decrease_phi)
-                elif btn_text == "D":
-                    button.clicked.connect(self.increase_phi)
-                elif btn_text == "Q":
-                    button.clicked.connect(self.decrease_dimple_dia)
-                elif btn_text == "E":
-                    button.clicked.connect(self.increase_dimple_dia)
-
-            movement_buttons.addLayout(row_layout)
+        global_label = QLabel("Global Settings")
+        global_label.setAlignment(Qt.AlignCenter)
 
         # Add input fields and labels
         for lbl, line_edit in [(label1, self.line_edit1), (label2, self.line_edit2), (label3, self.line_edit3), (label4, self.line_edit4), (label5, self.line_edit5), (label6, self.line_edit6)]:
@@ -203,9 +174,9 @@ class CustomWidget(QWidget):
         show_array_button.clicked.connect(self.show_array)
 
 
-        # Add a button to run the Dimple.py script
-        run_script_button = QPushButton("Add Dimple")
-        run_script_button.setStyleSheet("""
+        # Add single radius dimple
+        add_dimple_button = QPushButton("Single Radius Dimple")
+        add_dimple_button.setStyleSheet("""
             QPushButton {
                 background-color: #447B98;
                 border: 1px solid #303030;
@@ -222,7 +193,26 @@ class CustomWidget(QWidget):
         """)
         hide_array_button.clicked.connect(self.hide_array)
         show_array_button.clicked.connect(self.show_array)
-        run_script_button.clicked.connect(self.add_dimple_script)
+        add_dimple_button.clicked.connect(self.add_dimple_script)
+
+        # Flower array button
+        flower_array_button = QPushButton("Create Flower Array")
+        flower_array_button.setStyleSheet("""
+            QPushButton {
+                background-color: #447B98;
+                border: 1px solid #303030;
+                border-radius: 5px;
+                padding: 5px;
+                font-size: 12px;
+            }
+            QPushButton:hover {
+                background-color: #404040;
+            }
+            QPushButton:pressed {
+                background-color: #303030;
+            }
+        """)
+        flower_array_button.clicked.connect(self.add_dimple_script)
 
 
         # Add a line separator
@@ -232,19 +222,35 @@ class CustomWidget(QWidget):
         line.setStyleSheet("background-color: white; height: 1px;")
         
 
+        # Horizontal layout for label and line edit
+        array_layout = QHBoxLayout()
+
+        # Global array setting
+        global_array_label = QLabel("Polar Array:")
+        input_text7=""
+        global_array = QLineEdit(input_text7)
+        global_array.setFixedWidth(120)
+        global_array.setAlignment(Qt.AlignRight)
+
+        # Add label and line edit to the horizontal layout
+        array_layout.addWidget(global_array_label)
+        array_layout.addWidget(global_array)
+
         # Add widgets to layout
         layout.addWidget(resolution_label)
         layout.addLayout(button_layout)
-        layout.addWidget(run_script_button)
+        layout.addWidget(add_dimple_button)
+        layout.addWidget(flower_array_button)
+
+        # Layout line break
         layout.addWidget(line)
-        layout.addWidget(movement_label)
-        #layout.addLayout(movement_buttons)
-        #layout.addWidget(movement_label2)
-        # Add the button to the layout
+
+        # Global layout widgets
+        layout.addWidget(global_label)
+        layout.addLayout(array_layout)
         layout.addWidget(hide_array_button)
         layout.addWidget(show_array_button)
         
-
         # Set layout
         self.setLayout(layout)
 
@@ -387,34 +393,33 @@ class CustomWidget(QWidget):
     def update_selected_body(self):
         """Update the selected body label dynamically."""
         selected_label = get_selected_body_label()
-        
-        # Check if selected_label is valid and slice the last 3 digits
-        if selected_label and isinstance(selected_label, str):
+        print(f"Selected Body: {selected_label}")
+
+        if selected_label == "Ball":
+            print("Please selecte a dimple.")
+        else: 
             dimple_number = selected_label[-3:]
-        else:
-            # If dimple_number is invalid, set a fallback value and make sure it is a string
-            dimple_number = "---"  # You can adjust this based on what you need
+            
+            # Update the label with the correct body name
+            self.selected_body_label.setText(f"Dimple{dimple_number}")
+            self.selected_body_label.setAlignment(Qt.AlignCenter)
+            
+            # Apply bold and change font size
+            self.selected_body_label.setStyleSheet("""
+                font-size: 16px;  /* Change text size */
+                font-weight: bold;  /* Make text bold */
+            """)
+
+            # Get dimple data and populate the fields
+            diameter, depth, radius, theta, phi, array_occurrence = get_dimple_data(dimple_number)
+            self.line_edit1.setText(f"{diameter:.3f}")
+            self.line_edit2.setText(f"{depth:.4f}")
+            self.line_edit3.setText(f"{radius:.3f}")
+            self.line_edit4.setText(f"{theta:.2f}")
+            self.line_edit5.setText(f"{phi:.2f}")
+            self.line_edit6.setText(f"{array_occurrence}")
+       
         
-        # Update the label with the correct body name
-        self.selected_body_label.setText(f"Dimple{dimple_number}")
-        self.selected_body_label.setAlignment(Qt.AlignCenter)
-        
-        # Apply bold and change font size
-        self.selected_body_label.setStyleSheet("""
-            font-size: 16px;  /* Change text size */
-            font-weight: bold;  /* Make text bold */
-        """)
-
-        # Get dimple data and populate the fields
-        diameter, depth, radius, theta, phi, array_occurrence = get_dimple_data(dimple_number)
-        self.line_edit1.setText(f"{diameter:.3f}")
-        self.line_edit2.setText(f"{depth:.4f}")
-        self.line_edit3.setText(f"{radius:.3f}")
-        self.line_edit4.setText(f"{theta:.2f}")
-        self.line_edit5.setText(f"{phi:.2f}")
-        self.line_edit6.setText(f"{array_occurrence}")
-
-
     def update_dimple_data(self):
         """Update the FreeCAD data whenever any field is modified."""
         doc = FreeCAD.ActiveDocument
@@ -476,7 +481,6 @@ class CustomWidget(QWidget):
 
 
     # Change dimple color by dimaeter and depth
-
     def calculate_rgb(self, dimple_diameter, dimple_depth):
         # Ensure the main number is within the valid range
         if not (0.050 <= dimple_diameter <= 0.200):
