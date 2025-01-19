@@ -113,10 +113,15 @@ class Dimple:
         sketch.renameConstraint(16, u'DimpleDiameter')  
 
         # Set default dimple dimensions 
-        sketch.setDatum(10,FreeCAD.Units.Quantity('0.0'))         # Dimple Theta    (0 degrees)
         sketch.setDatum(11,FreeCAD.Units.Quantity('0.203200 mm')) # Dimple Depth    (.008)
         sketch.setDatum(12,FreeCAD.Units.Quantity('7.620000 mm')) # Dimple Radius   (.300)
         sketch.setDatum(16,FreeCAD.Units.Quantity('3.048000 mm')) # Dimple Diameter (.120)
+
+        if sketch.Label == "DimpleSketch001":
+            sketch.setDatum(10,FreeCAD.Units.Quantity('0.0 deg'))         # Dimple Theta    (0 degrees)
+        else:
+            sketch.setDatum(10,FreeCAD.Units.Quantity('9.0 deg'))         # Dimple Theta    (0 degrees)
+            print(sketch.Label)
 
         # Recompute the document
         doc.recompute() 
@@ -168,9 +173,12 @@ class Dimple:
         doc.getObject(polarPattern_name).Reversed = 0
         doc.getObject(polarPattern_name).Mode = 0
         doc.getObject(polarPattern_name).Angle = 360.000000
-        doc.getObject(polarPattern_name).Occurrences = 1
+        doc.getObject(polarPattern_name).Occurrences = 5
         doc.getObject(polarPattern_name).Visibility = True
         doc.getObject(revolve_name).Visibility = False
+
+        if polarPattern_name == "PolarPattern001":
+            doc.getObject(polarPattern_name).Occurrences = 1
 
         # Recompute
         doc.recompute()

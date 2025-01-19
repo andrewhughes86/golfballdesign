@@ -72,6 +72,13 @@ class CustomWidget(QWidget):
         self.setup_shortcuts_for_keys()
         self.selected_resolution = None
 
+
+        # Theta and Phi movement resolution (degrees) 
+        self.values = [0.1, 0.5, 1, 3, 5]
+        self.current_index = 2
+        self.current_resolution = self.values[self.current_index]
+        
+
         # Widget layout (Selected Dimple at the top)
         layout = QVBoxLayout()
         layout.addWidget(self.selected_body_label)
@@ -98,7 +105,7 @@ class CustomWidget(QWidget):
         label6 = QLabel("Array #:")
 
         # Buttons
-        resolution_label = QLabel("Resolution(deg): (Coming soon!)")
+        resolution_label = QLabel("Resolution(deg) <-Q E->")
         button_layout = QHBoxLayout()
 
         button_style = """
@@ -135,9 +142,9 @@ class CustomWidget(QWidget):
             row_layout.addWidget(line_edit)
             layout.addLayout(row_layout)
 
-        # Hide array button
-        hide_array_button = QPushButton("Hide Arrayed Dimples")
-        hide_array_button.setStyleSheet("""
+        # Create a single toggle button
+        toggle_array_button = QPushButton("Hide Arrayed Dimples")
+        toggle_array_button.setStyleSheet("""
             QPushButton {
                 background-color: #447B98;
                 border: 1px solid #303030;
@@ -152,26 +159,19 @@ class CustomWidget(QWidget):
                 background-color: #303030;
             }
         """)
-        hide_array_button.clicked.connect(self.hide_array)
 
-        # Show array button
-        show_array_button = QPushButton("Show Arrayed Dimples")
-        show_array_button.setStyleSheet("""
-            QPushButton {
-                background-color: #447B98;
-                border: 1px solid #303030;
-                border-radius: 5px;
-                padding: 5px;
-                font-size: 12px;
-            }
-            QPushButton:hover {
-                background-color: #404040;
-            }
-            QPushButton:pressed {
-                background-color: #303030;
-            }
-        """)
-        show_array_button.clicked.connect(self.show_array)
+        # Default state (hidden)
+        self.array_hidden = True
+
+        # Define the toggle functionality
+        def toggle_array():
+            if self.array_hidden:
+                toggle_array_button.setText("Show Arrayed Dimples")
+                self.hide_array()  # Call the hide function
+            else:
+                toggle_array_button.setText("Hide Arrayed Dimples")
+                self.show_array()  # Call the show function
+            self.array_hidden = not self.array_hidden  # Toggle the state
 
 
         # Add single radius dimple
@@ -191,8 +191,12 @@ class CustomWidget(QWidget):
                 background-color: #303030;
             }
         """)
-        hide_array_button.clicked.connect(self.hide_array)
-        show_array_button.clicked.connect(self.show_array)
+        #hide_array_button.clicked.connect(self.hide_array)
+        #show_array_button.clicked.connect(self.show_array)
+
+        # Connect the button to the toggle function
+        toggle_array_button.clicked.connect(toggle_array)
+
         add_dimple_button.clicked.connect(self.add_dimple_script)
 
         # Flower array button
@@ -248,8 +252,9 @@ class CustomWidget(QWidget):
         # Global layout widgets
         layout.addWidget(global_label)
         layout.addLayout(array_layout)
-        layout.addWidget(hide_array_button)
-        layout.addWidget(show_array_button)
+        layout.addWidget(toggle_array_button)
+        # layout.addWidget(hide_array_button)
+        # layout.addWidget(show_array_button)
         
         # Set layout
         self.setLayout(layout)
@@ -265,7 +270,7 @@ class CustomWidget(QWidget):
 
     def add_dimple_script(self):
         FreeCADGui.runCommand('Dimple',0)
-        print("Running Dimple Script...")
+        #print("Running Dimple Script...")
 
     def on_resolution_button_click(self):
         """Handles the button click event for resolution buttons."""
@@ -331,31 +336,47 @@ class CustomWidget(QWidget):
                 obj.ViewObject.Visibility = True
         FreeCAD.ActiveDocument.recompute()
 
+    # Increase movement resolution
+    def increase_value(self):
+        """Move to the next value in the list."""
+        if self.current_index < 4:  # Check if not at the first index
+            self.current_index = (self.current_index + 1) % len(self.values)
+            self.current_resolution = self.values[self.current_index]
+        print(f"Current Resolution: {self.current_resolution} degrees")  # Optional debug output
+
+    # Decrease movement resolution
+    def decrease_value(self):
+        """Move to the previous value in the list."""
+        if self.current_index > 0:  # Check if not at the first index
+            self.current_index = (self.current_index - 1) % len(self.values)
+            self.current_resolution = self.values[self.current_index]
+        print(f"Current Resolution: {self.current_resolution} degrees")  # Optional debug output
+
     # Increase theta
     def increase_theta(self):
         current_theta = float(self.line_edit4.text())
-        new_theta = current_theta + 1
+        new_theta = current_theta + self.current_resolution
         self.line_edit4.setText(f"{new_theta:.2f}")
         self.update_dimple_data()
         
     # Decrese theta
     def decrease_theta(self):
         current_theta = float(self.line_edit4.text())
-        new_theta = current_theta - 1
+        new_theta = current_theta - self.current_resolution
         self.line_edit4.setText(f"{new_theta:.2f}")
         self.update_dimple_data()
         
     # Increase phi
     def increase_phi(self):
         current_phi = float(self.line_edit5.text())
-        new_phi = current_phi + 1
+        new_phi = current_phi + self.current_resolution
         self.line_edit5.setText(f"{new_phi:.2f}")
         self.update_dimple_data()
         
     # Decrese phi
     def decrease_phi(self):
         current_phi = float(self.line_edit5.text())
-        new_phi = current_phi - 1
+        new_phi = current_phi - self.current_resolution
         self.line_edit5.setText(f"{new_phi:.2f}")
         self.update_dimple_data()
 
@@ -376,9 +397,11 @@ class CustomWidget(QWidget):
     def setup_shortcuts_for_keys(self):
         """Set up keyboard shortcuts for the widget."""
         key_actions = {
-            "Q": self.decrease_dimple_dia,
+            "Q": self.decrease_value,
             "W": self.decrease_theta,
-            "E": self.increase_dimple_dia,
+            "E": self.increase_value,
+            "F": self.decrease_dimple_dia,
+            "R": self.increase_dimple_dia,
             "A": self.decrease_phi,
             "S": self.increase_theta,
             "D": self.increase_phi,
@@ -386,23 +409,28 @@ class CustomWidget(QWidget):
 
         # Create shortcuts for the widget
         for key, action in key_actions.items():
-            shortcut = QShortcut(QKeySequence(key), self)  # Attach to self (CustomWidget)
+            shortcut = QShortcut(QKeySequence(key), self)
             shortcut.activated.connect(action)            
 
 
     def update_selected_body(self):
         """Update the selected body label dynamically."""
         selected_label = get_selected_body_label()
-        print(f"Selected Body: {selected_label}")
+        #print(f"Selected Object: {selected_label}")
 
         if selected_label == "Ball":
             print("Please selecte a dimple.")
+        elif selected_label == "GolfBall":
+            print("Please selecte a dimple.")
+        elif selected_label == "BallDiameter":
+            print("Please selecte a dimple.")
         else: 
             dimple_number = selected_label[-3:]
-            
+
             # Update the label with the correct body name
             self.selected_body_label.setText(f"Dimple{dimple_number}")
             self.selected_body_label.setAlignment(Qt.AlignCenter)
+            print(f"Selected: Dimple{dimple_number}")
             
             # Apply bold and change font size
             self.selected_body_label.setStyleSheet("""
@@ -505,7 +533,7 @@ class CustomWidget(QWidget):
 
         # Scale down the RGB values by the inverted brightness
         adjusted_rgb = tuple(int(channel * inverted_brightness) for channel in rgb_color)
-        print("Adjusted RGB:", adjusted_rgb)
+        #print("Adjusted RGB:", adjusted_rgb)
 
         # Get the selected FreeCAD object
         selected_objects = FreeCADGui.Selection.getSelection()
@@ -516,7 +544,7 @@ class CustomWidget(QWidget):
 
         # Set the color to the selected FreeCAD object
         selected_object.ViewObject.ShapeColor = (adjusted_rgb[0] / 255, adjusted_rgb[1] / 255, adjusted_rgb[2] / 255)
-        print("Updated color:", selected_object.ViewObject.ShapeColor)
+        #print("Updated color:", selected_object.ViewObject.ShapeColor)
 
         return adjusted_rgb
  
