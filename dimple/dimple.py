@@ -20,7 +20,6 @@ class Dimple:
     def Activated(self):
         """Create a rotated plane and reference line."""
         doc = FreeCAD.ActiveDocument
-        
         # Run a dimple sketch
         # self.duplicate_dimple()
         self.dimpleSketch(doc)     

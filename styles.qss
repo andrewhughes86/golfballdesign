@@ -1,0 +1,28 @@
+QPushButton {
+    background-color: #447B98;
+    border: 1px solid #303030;
+    border-radius: 5px;
+    padding: 5px;
+    font-size: 12px;
+}
+QPushButton:hover {
+    background-color: #404040;
+}
+QPushButton:pressed {
+    background-color: #303030;
+}
+
+
+QToolButton {
+            background-color: #447B98;
+            border: 1px solid #303030;
+            border-radius: 5px; /* Rounded corners */
+            padding: 5px;
+            font-size: 11px;
+}
+QToolButton:hover {
+    background-color: #404040; /* Slightly darker gray on hover */
+}
+QToolButton:pressed {
+    background-color: #303030; /* Dark gray when pressed */
+}

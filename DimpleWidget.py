@@ -16,6 +16,7 @@ import FreeCADGui
 import FreeCAD
 import math
 import colorsys
+import os
 
 def get_selected_body_label():
     """Function to get the label of the currently selected body."""
@@ -66,19 +67,24 @@ class CustomWidget(QWidget):
     def __init__(self, input_text1="", input_text2="", input_text3="", input_text4="", input_text5="", input_text6=""):
         super().__init__()
 
+        # Change the current working directory to the script's location
+        os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
+        # Load the stylesheet
+        with open("styles.qss", "r") as file:
+            button_style = file.read()
+
         # Selected body label
         self.selected_body_label = QLabel("Selected Body: None")
 
+        # keyboard shortcuts
         self.setup_shortcuts_for_keys()
-        self.selected_resolution = None
-
 
         # Theta and Phi movement resolution (degrees) 
         self.values = [0.1, 0.5, 1, 3, 5]
         self.current_index = 2
         self.current_resolution = self.values[self.current_index]
-        
-
+    
         # Widget layout (Selected Dimple at the top)
         layout = QVBoxLayout()
         layout.addWidget(self.selected_body_label)
@@ -108,21 +114,6 @@ class CustomWidget(QWidget):
         resolution_label = QLabel("Resolution(deg) <-Q E->")
         button_layout = QHBoxLayout()
 
-        button_style = """
-        QToolButton {
-            background-color: #447B98;
-            border: 1px solid #303030;
-            border-radius: 5px; /* Rounded corners */
-            padding: 5px;
-            font-size: 11px;
-        }
-        QToolButton:hover {
-            background-color: #404040; /* Slightly darker gray on hover */
-        }
-        QToolButton:pressed {
-            background-color: #303030; /* Dark gray when pressed */
-        }
-        """
         # Buttons
         self.button_map = {}  # Store button references to connect them later
         for btn_text in ["0.1", "0.5", "1", "3", "5"]:
@@ -144,21 +135,7 @@ class CustomWidget(QWidget):
 
         # Create a single toggle button
         toggle_array_button = QPushButton("Hide Arrayed Dimples")
-        toggle_array_button.setStyleSheet("""
-            QPushButton {
-                background-color: #447B98;
-                border: 1px solid #303030;
-                border-radius: 5px;
-                padding: 5px;
-                font-size: 12px;
-            }
-            QPushButton:hover {
-                background-color: #404040;
-            }
-            QPushButton:pressed {
-                background-color: #303030;
-            }
-        """)
+        toggle_array_button.setStyleSheet(button_style)
 
         # Default state (hidden)
         self.array_hidden = True
@@ -173,58 +150,30 @@ class CustomWidget(QWidget):
                 self.show_array()  # Call the show function
             self.array_hidden = not self.array_hidden  # Toggle the state
 
-
         # Add single radius dimple
-        add_dimple_button = QPushButton("Single Radius Dimple")
-        add_dimple_button.setStyleSheet("""
-            QPushButton {
-                background-color: #447B98;
-                border: 1px solid #303030;
-                border-radius: 5px;
-                padding: 5px;
-                font-size: 12px;
-            }
-            QPushButton:hover {
-                background-color: #404040;
-            }
-            QPushButton:pressed {
-                background-color: #303030;
-            }
-        """)
-        #hide_array_button.clicked.connect(self.hide_array)
-        #show_array_button.clicked.connect(self.show_array)
+        add_dimple_button = QPushButton("Add Single Radius Dimple")
+        add_dimple_button.setStyleSheet(button_style)
+
+        # Add dual radius dimple
+        add_dualr_dimple_button = QPushButton("Add Dual Radius Dimple")
+        add_dualr_dimple_button.setStyleSheet(button_style)    
 
         # Connect the button to the toggle function
         toggle_array_button.clicked.connect(toggle_array)
 
         add_dimple_button.clicked.connect(self.add_dimple_script)
+        add_dualr_dimple_button.clicked.connect(self.add_dimple_script)
 
         # Flower array button
         flower_array_button = QPushButton("Create Flower Array")
-        flower_array_button.setStyleSheet("""
-            QPushButton {
-                background-color: #447B98;
-                border: 1px solid #303030;
-                border-radius: 5px;
-                padding: 5px;
-                font-size: 12px;
-            }
-            QPushButton:hover {
-                background-color: #404040;
-            }
-            QPushButton:pressed {
-                background-color: #303030;
-            }
-        """)
+        flower_array_button.setStyleSheet(button_style)
         flower_array_button.clicked.connect(self.add_dimple_script)
-
 
         # Add a line separator
         line = QFrame()
         line.setFrameShape(QFrame.HLine)
         line.setFrameShadow(QFrame.Sunken)
         line.setStyleSheet("background-color: white; height: 1px;")
-        
 
         # Horizontal layout for label and line edit
         array_layout = QHBoxLayout()
@@ -244,6 +193,7 @@ class CustomWidget(QWidget):
         layout.addWidget(resolution_label)
         layout.addLayout(button_layout)
         layout.addWidget(add_dimple_button)
+        layout.addWidget(add_dualr_dimple_button)
         layout.addWidget(flower_array_button)
 
         # Layout line break
@@ -253,8 +203,6 @@ class CustomWidget(QWidget):
         layout.addWidget(global_label)
         layout.addLayout(array_layout)
         layout.addWidget(toggle_array_button)
-        # layout.addWidget(hide_array_button)
-        # layout.addWidget(show_array_button)
         
         # Set layout
         self.setLayout(layout)
@@ -271,54 +219,6 @@ class CustomWidget(QWidget):
     def add_dimple_script(self):
         FreeCADGui.runCommand('Dimple',0)
         #print("Running Dimple Script...")
-
-    def on_resolution_button_click(self):
-        """Handles the button click event for resolution buttons."""
-        # Get the text of the clicked button
-        clicked_button = self.sender()
-        clicked_resolution = clicked_button.text()
-
-        # Update the selected_resolution variable
-        self.selected_resolution = float(clicked_resolution)  # Store the selected resolution
-
-        # Update the button styles to highlight the selected one
-        for btn_text, button in self.button_map.items():
-            if btn_text == clicked_resolution:
-                # Highlight the selected button
-                button.setStyleSheet("""
-                    QToolButton {
-                        background-color: #006400; /* Green color for selected */
-                        border: 1px solid #303030;
-                        border-radius: 5px;
-                        padding: 5px;
-                        font-size: 11px;
-                    }
-                    QToolButton:hover {
-                        background-color: #404040;
-                    }
-                    QToolButton:pressed {
-                        background-color: #303030;
-                    }
-                """)
-            else:
-                # Reset the other buttons to default style
-                button.setStyleSheet("""
-                    QToolButton {
-                        background-color: #447B98;
-                        border: 1px solid #303030;
-                        border-radius: 5px;
-                        padding: 5px;
-                        font-size: 11px;
-                    }
-                    QToolButton:hover {
-                        background-color: #404040;
-                    }
-                    QToolButton:pressed {
-                        background-color: #303030;
-                    }
-                """)
-
-        print(f"Selected resolution: {self.selected_resolution}")
 
     # Hide arrayed dimples
     def hide_array(self):
@@ -454,7 +354,7 @@ class CustomWidget(QWidget):
         selected_label = get_selected_body_label()
         
         if not selected_label:
-            print("No body selected.")
+            print("No object selected.")
             return
 
         try:
@@ -545,7 +445,6 @@ class CustomWidget(QWidget):
         # Set the color to the selected FreeCAD object
         selected_object.ViewObject.ShapeColor = (adjusted_rgb[0] / 255, adjusted_rgb[1] / 255, adjusted_rgb[2] / 255)
         #print("Updated color:", selected_object.ViewObject.ShapeColor)
-
         return adjusted_rgb
  
 
@@ -567,7 +466,7 @@ class MyWindow:
         self.main_window = FreeCADGui.getMainWindow()
         self.dock_widget = MyDockWidget()
         self.main_window.addDockWidget(Qt.RightDockWidgetArea, self.dock_widget)
-
+        
         # Attach selection observer
         self.observer = SelectionObserver(self.dock_widget.custom_widget)
         FreeCADGui.Selection.addObserver(self.observer)
