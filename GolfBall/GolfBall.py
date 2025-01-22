@@ -91,7 +91,7 @@ class GolfBall:
         # Change to shadded
         FreeCADGui.runCommand('Std_DrawStyle',5)
 
-        # Revolve the sketch
+        # Revolve the sketch    
         revolve = body.newObject('PartDesign::Revolution', 'Ball')
         revolve.Profile = sketch
         revolve.ReferenceAxis = (sketch, 'H_Axis')  # Horizontal axis

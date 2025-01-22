@@ -112,14 +112,14 @@ class Dimple:
         sketch.renameConstraint(16, u'DimpleDiameter')  
 
         # Set default dimple dimensions 
-        sketch.setDatum(11,FreeCAD.Units.Quantity('0.203200 mm')) # Dimple Depth    (.008)
-        sketch.setDatum(12,FreeCAD.Units.Quantity('7.620000 mm')) # Dimple Radius   (.300)
-        sketch.setDatum(16,FreeCAD.Units.Quantity('3.048000 mm')) # Dimple Diameter (.120)
+        sketch.setDatum(11,FreeCAD.Units.Quantity('0.203200 mm'))               # Dimple Depth    (.008)
+        sketch.setDatum(12,FreeCAD.Units.Quantity('7.620000 mm'))               # Dimple Radius   (.300)
+        sketch.setDatum(16,FreeCAD.Units.Quantity('3.048000 mm'))               # Dimple Diameter (.120)
 
         if sketch.Label == "DimpleSketch001":
-            sketch.setDatum(10,FreeCAD.Units.Quantity('0.0 deg'))         # Dimple Theta    (0 degrees)
+            sketch.setDatum(10,FreeCAD.Units.Quantity('0.0 deg'))               # Dimple Theta    (0 degrees)
         else:
-            sketch.setDatum(10,FreeCAD.Units.Quantity('9.0 deg'))         # Dimple Theta    (0 degrees)
+            sketch.setDatum(10,FreeCAD.Units.Quantity('9.0 deg'))               # Dimple Theta    (0 degrees)
             print(sketch.Label)
 
         # Recompute the document
@@ -192,64 +192,6 @@ class Dimple:
         # Make current selected body
         FreeCADGui.Selection.clearSelection()
         FreeCADGui.Selection.addSelection('Unnamed',body_name)
-
-    
-
-    '''
-    def duplicate_dimple(self):
-        selected_objects = FreeCADGui.Selection.getSelection()
-
-        # Initialize variables with defaults
-        diameter = 0.130
-        depth = 0.008
-        radius = 0.3
-        theta = 0
-        phi = 45
-        array_occurrence = 5
-        latest_dimple = None
-        highest_number = -1
-
-        # Ensure something is selected
-        if selected_objects:
-            for obj in selected_objects:
-                if obj.TypeId == "PartDesign::Body" and re.match(r"Dimple\d{3}$", obj.Name):
-                    # Extract numeric suffix
-                    dimple_number = int(obj.Name[-3:])
-                    if dimple_number > highest_number:
-                        highest_number = dimple_number
-                        latest_dimple = obj
-
-        if latest_dimple:
-            try:
-                dimple_number = latest_dimple.Name[-3:]  # Extract the dimple number as a string
-                # Attempt to retrieve dimple data
-                diameter, depth, radius, theta, phi, array_occurrence = get_dimple_data(dimple_number)
-                print(f"Selected Dimple: {latest_dimple.Name}")
-            except Exception as e:
-                # Handle failure and use default values
-                print(f"Error retrieving dimple data for {latest_dimple.Name}: {e}")
-        else:
-            print("No dimple body found. Using default values.")
-
-        # Proceed with the rest of your code using the variables
-        print(f"Dimple Data - Diameter: {diameter}, Depth: {depth}, Radius: {radius}, Theta: {theta}, Phi: {phi}, Occurrences: {array_occurrence}")
-
-
-        # Now you can use these variables
-        #print(f"Selected Dimple: {dimple_number}")
-        print(f"Dimple Diameter: {diameter} inches")
-        print(f"Dimple Depth: {depth} inches")
-        print(f"Dimple Radius: {radius} inches")
-        print(f"Theta: {theta} degrees")
-        print(f"Phi: {phi} degrees")
-        print(f"Array Occurrence: {array_occurrence}")
-
-        # Set default dimple dimensions 
-        sketch.setDatum(10,FreeCAD.Units.Quantity(theta)) # Dimple Theta   
-        sketch.setDatum(11,FreeCAD.Units.Quantity(depth)) # Dimple Depth   
-        sketch.setDatum(12,FreeCAD.Units.Quantity(radius)) # Dimple Radius  
-        sketch.setDatum(16,FreeCAD.Units.Quantity(diameter)) # Dimple Diameter
-    '''
 
 
     def IsActive(self):

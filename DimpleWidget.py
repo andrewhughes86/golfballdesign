@@ -111,7 +111,7 @@ class CustomWidget(QWidget):
         label6 = QLabel("Array #:")
 
         # Buttons
-        resolution_label = QLabel("Resolution(deg) <-Q E->")
+        resolution_label = QLabel("Resolution(deg) <-[ F ] [ R ]->")
         button_layout = QHBoxLayout()
 
         # Buttons
@@ -158,9 +158,8 @@ class CustomWidget(QWidget):
         add_dualr_dimple_button = QPushButton("Add Dual Radius Dimple")
         add_dualr_dimple_button.setStyleSheet(button_style)    
 
-        # Connect the button to the toggle function
+        # Button functions
         toggle_array_button.clicked.connect(toggle_array)
-
         add_dimple_button.clicked.connect(self.add_dimple_script)
         add_dualr_dimple_button.clicked.connect(self.add_dimple_script)
 
@@ -215,7 +214,6 @@ class CustomWidget(QWidget):
         self.line_edit5.editingFinished.connect(self.update_dimple_data)
         self.line_edit6.editingFinished.connect(self.update_dimple_data)
     
-
     def add_dimple_script(self):
         FreeCADGui.runCommand('Dimple',0)
         #print("Running Dimple Script...")
@@ -237,7 +235,7 @@ class CustomWidget(QWidget):
         FreeCAD.ActiveDocument.recompute()
 
     # Increase movement resolution
-    def increase_value(self):
+    def increase_resolution(self):
         """Move to the next value in the list."""
         if self.current_index < 4:  # Check if not at the first index
             self.current_index = (self.current_index + 1) % len(self.values)
@@ -245,7 +243,7 @@ class CustomWidget(QWidget):
         print(f"Current Resolution: {self.current_resolution} degrees")  # Optional debug output
 
     # Decrease movement resolution
-    def decrease_value(self):
+    def decrease_resolution(self):
         """Move to the previous value in the list."""
         if self.current_index > 0:  # Check if not at the first index
             self.current_index = (self.current_index - 1) % len(self.values)
@@ -297,14 +295,15 @@ class CustomWidget(QWidget):
     def setup_shortcuts_for_keys(self):
         """Set up keyboard shortcuts for the widget."""
         key_actions = {
-            "Q": self.decrease_value,
+            "Q": self.decrease_dimple_dia,
             "W": self.decrease_theta,
-            "E": self.increase_value,
-            "F": self.decrease_dimple_dia,
-            "R": self.increase_dimple_dia,
+            "E": self.increase_dimple_dia,
+            "R": self.increase_resolution,
             "A": self.decrease_phi,
             "S": self.increase_theta,
             "D": self.increase_phi,
+            "F": self.decrease_resolution,
+            "C": self.add_dimple_script,
         }
 
         # Create shortcuts for the widget
