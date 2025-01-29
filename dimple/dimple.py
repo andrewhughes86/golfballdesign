@@ -119,7 +119,7 @@ class Dimple:
         if sketch.Label == "DimpleSketch001":
             sketch.setDatum(10,FreeCAD.Units.Quantity('0.0 deg'))               # Dimple Theta    (0 degrees)
         else:
-            sketch.setDatum(10,FreeCAD.Units.Quantity('9.0 deg'))               # Dimple Theta    (0 degrees)
+            sketch.setDatum(10,FreeCAD.Units.Quantity('10.0 deg'))               # Dimple Theta    (0 degrees)
             print(sketch.Label)
 
         # Recompute the document

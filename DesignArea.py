@@ -3,10 +3,10 @@ import Part
 import Sketcher
 
 class DesignArea:
-    """The creat Golf BAll command."""
+    # Create planes to define the working area for dimples before they are arrayed.
 
     def Activated(self):
-        """Create or update a ball by revolving a half-circle."""
+        # Activate
         self.designArea()
 
    

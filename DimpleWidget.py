@@ -17,6 +17,7 @@ import FreeCAD
 import math
 import colorsys
 import os
+from Dimple import DualRadius
 
 def get_selected_body_label():
     """Function to get the label of the currently selected body."""
@@ -161,7 +162,7 @@ class CustomWidget(QWidget):
         # Button functions
         toggle_array_button.clicked.connect(toggle_array)
         add_dimple_button.clicked.connect(self.add_dimple_script)
-        add_dualr_dimple_button.clicked.connect(self.add_dimple_script)
+        add_dualr_dimple_button.clicked.connect(self.add_dual_radius_dimple_script)
 
         # Flower array button
         flower_array_button = QPushButton("Create Flower Array")
@@ -217,6 +218,10 @@ class CustomWidget(QWidget):
     def add_dimple_script(self):
         FreeCADGui.runCommand('Dimple',0)
         #print("Running Dimple Script...")
+
+    def add_dual_radius_dimple_script(self):
+        DualRadius.DualRadiusDimple()
+        #print("Running Dimple Script...")    
 
     # Hide arrayed dimples
     def hide_array(self):
